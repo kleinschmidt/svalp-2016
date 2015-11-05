@@ -11,24 +11,17 @@ This can be formalized as a kind of statistical inference, where listeners try t
 
 We use a /b/-/p/ VOT distributional learning paradigm [@Clayards2008], where listeners hear a bimodal distribution over an acoustic cue (VOT), with a cluster at a low value implicitly corresponding to /b/ and another at a high value corresponding to /p/.  By varying the location of these clusters, we create "accents" that are more or less like those produced by a typical American English talker [as measured by, e.g., @Kronrod2012].
 
-![Listeners heard one of these five synthetic "accents", which differed only in the location of (implied) /b/ and /p/ clusters of VOTs (colored histograms) relative to a typical English talkers' VOT distributions (dashed black lines). ](../nips_2015/kleinschmidt_infer_priors_files/figure-latex/input-vs-prior-stats-1.pdf)
+![Listeners heard one of these five synthetic "accents", which differed only in the location of (implied) /b/ and /p/ clusters of VOTs (colored histograms) relative to a typical English talkers' VOT distributions (dashed black lines).
+](../nips_2015/kleinschmidt_infer_priors_files/figure-latex/input-vs-prior-stats-1.pdf)
 
 We measure how well listeners _learn_ these accents by comparing their classification functions to the ideal boundaries implied by the distributions [as in @Clayards2008].  As predicted, when the VOT clusters were unusually high or low, listeners actual category boundaries reflected a compromise between the boundary of a typical talker and the boundary implied by the input distributions they heard.
 
-![After exposure, listeners' /b/-/p/ classifications (thin lines) reflected a compromise between the typical (dashed black) and experimental (dashed colored). ](../nips_2015/kleinschmidt_infer_priors_files/figure-latex/supunsup-belief-updating-qualitative-1.pdf)
+![After exposure, listeners' /b/-/p/ classifications (thin lines) reflected a compromise between the typical (dashed black) and experimental (dashed colored).
+](../nips_2015/kleinschmidt_infer_priors_files/figure-latex/supunsup-belief-updating-qualitative-1.pdf)
 
 Second, we used a Bayesian belief-updating model to work backwards from the patterns of adaptation to different accents in order to infer what listeners' starting beliefs were, and how confident they were in those beliefs.  The inferred prior expectations matched the range seen across typical American English talkers, including the counterintuitive fact that listeners were _more_ uncertain about the /b/ mean VOT than the /p/, corresponding to the fact that there's high variance in the VOT of /b/ _across_ talkers due to some talkers prevoicing.
 
 The ability to measure listeners' prior expectations potentially provides an important and heretofore missing tool in the toolbox of sociophonetics: it directly links the measurable variability in _production_ of linguistic variables with listeners' subjective expectations about those variables, in both cases potentially conditional on _social_ variables.  We demonstrate a proof-of-concept here using standard American English as a reference, but the same procedure can be applied to more specific variables like gender, region, class, etc., by providing information to the listener about _who_ the talker is [information which listeners do in fact use to guide speech perception, e.g. @Niedzielski1999; @Hay2010].
 
-<!--  -->
-
-<!-- Listeners _do_ use prior experience with groups to shape perception. -->
-
-<!-- One hand, basic speech perception problem (lack of invariance). On the other hand, sociolinguistic variation. Bring these together: variation that's _predictable_ based on prior experience is actually _helpful_ because it accelerate adaptation to similar talkers in the future. This work provides a methodological tool to _probe_ listeners beliefs about different social variables. -->
-
-<!-- We've demonstrated this at the level of the language as a whole, but this method can be just as well applied to investigate listeners' beliefs about the accents of more specific social variables (like gender, region, class, age, etc.).  This provides a potential bridge between  -->
-
-<!--  -->
 
 # References
