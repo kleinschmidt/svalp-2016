@@ -11,3 +11,15 @@ One hand, basic speech perception problem (lack of invariance). On the other han
 We've demonstrated this at the level of the language as a whole, but this method can be just as well applied to investigate listeners' beliefs about the accents of more specific social variables (like gender, region, class, age, etc.).  This provides a potential bridge between
 
 
+## Word count
+
+Front matter: 14.
+File names: 28.
+References header: 1.
+
+So: at $588 - 43 = 545$.  If I can get it down to 543 I think that's okay. (not counting expanded citation keys but whatever. could always use numeric citations).
+
+Figure captions are $34 + 20 = 54$.
+
+
+
