@@ -7,7 +7,7 @@ fig_caption: true
 graphics: yes
 ---
 
-```{r, echo=FALSE, results='hide'}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 
 library(supunsup)
 library(dplyr)
@@ -94,7 +94,7 @@ data %>%
 
 ```
 
-We measure how well listeners _learn_ these accents by comparing their classification functions to the ideal boundaries implied by the exposure distributions alone (Figure 2).  As predicted, when the VOT clusters were unusually high or low, listeners _actual_ category boundaries reflected a compromise between the typical and exposure talkers.
+We measure how well listeners _learn_ these accents by comparing their classification functions to the ideal boundaries implied by the exposure distributions alone (Figure 1).  As predicted, when the VOT clusters were unusually high or low, listeners _actual_ category boundaries reflected a compromise between the typical and exposure talkers.
 
 ```{r supunsup-belief-updating-qualitative, fig.height=2, fig.width=8, out.width='\\textwidth', fig.cap="Listeners' responses, compared to typical and exposure talkers"}
 
