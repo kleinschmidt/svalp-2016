@@ -1,11 +1,12 @@
 ---
 bibliography: /Users/dkleinschmidt/Documents/papers/library-clean.bib
 csl: apa.csl
-output: pdf_document
+output: 
+  pdf_document:
+    keep_tex: true
 geometry: margin=1in
 fig_caption: true
 graphics: yes
-
 ---
 
 ```{r, echo=FALSE, results='hide'}
