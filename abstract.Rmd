@@ -12,6 +12,8 @@ graphics: yes
 
 library(supunsup)
 library(dplyr)
+library(tidyr)
+library(magrittr)
 
 data <- supunsup::supunsup_clean %>%
   filter(supCond == 'unsupervised') %>%
@@ -22,6 +24,11 @@ data <- supunsup::supunsup_clean %>%
 
 n_subj <- data %>% group_by(subject) %>% summarise() %>% tally()
 
+knitr::opts_chunk$set(echo=FALSE,
+                      results='hide',
+                      message=FALSE,
+                      warning=FALSE,
+                      error=FALSE)
 
 library(ggplot2)
 theme_set(theme_bw())
