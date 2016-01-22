@@ -23,3 +23,15 @@ Figure captions are $34 + 20 = 54$.
 
 
 
+# Talk framing
+
+* speech perception, inference under uncertainty (people produce DISTRIBUTIONS of cues).
+* distributions vary, and somehow listeners have to cope w/ this.
+* distributional _learning_: when you meet a new talker, you can figure out their distributions by tracking, say, mean and variance of cues you encounter.
+* question is: where do you _start_ this process of belief updating? what are your _prior beliefs_?
+* you can rule out a lot of things based on your previous experience with other talkers. at one level, know that /b/ has a lower mean VOT than /p/. also, the means are postively correlated.
+
+* picked this domain because:
+    1. distributional learning works with it.
+    2. there's not a lot of variability across talkers, so we predict that there will be pretty strong constraints from prior experience
+    3. we have (or soon will have) pretty good estimates of what the variability is like across talkers _in the world_.
