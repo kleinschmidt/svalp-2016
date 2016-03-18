@@ -54,3 +54,29 @@ Figure captions are $34 + 20 = 54$.
     * distributional learning paradigm: people hear b/p minimal pairs, click on picture matching what they heard.
     * we know that in these experiments, people adjust their category boundaries based on the distributions of cues, even without any kind of labeling information. [@Clayards2008, @Munson2011].
     * we measure how _well_ people learn teh distributionsby 
+# Reviews and responses
+
+
+## Review 1
+
+
+> The question is interesting and the methods are appropriate. An obvious alternative interpretation of the results that is not considered is that adaptation in this paradigm is constrained in some way, so that adapting to more extreme patterns is weaker than adapting to less extreme patterns.
+
+this begs the question: what would constrain this adaptation? if people are sensitive to the distributions, why should they not adapt to any distribution that they can pick up on?
+
+(see below) we're providing an explanation of _why_ adaptation might be constrained. makes testable predictions.
+
+for instance, for things where there's more variation, should be less constrained.
+
+## Review 2
+
+
+> This appears to be an interesting study. The manipulation of exposure distributions is well-conceived and seems to be well-executed. 
+> 
+> The two issues that may need to be considered are (1) in what way do the results go beyond the idea that accommodation to variation is not complete?
+
+they go beyond by offering a potential reason for _why_ accomodation is not complete: combining prior beliefs about what an unfamiliar talker will produce with the distributions you actually observe. 
+
+> (2) given the somewhat surprising pattern of greater malleability for the voiced side is the measure really getting at what the authors suggest?  Invoking the possibility of prevoiced tokens seems post-hoc and allows the authors to claim victory regardless of the results.  That is, if the voiceless side came out more variable, the argument would be that the measure is good because it matches expectations; with the voiced side coming out as it did, bringing in  pre-voiced tokens allows this result to be "expected".
+
+it _is_ a little post hoc. we expected to find that the cue distributions listeners thing are most likely would look just like a "typical" talker's distributions. this is true in the case of /p/ but not /b/, so we asked why. it turns out that the "typical" talker isn't so typical. Most talkers produce _some_ prevoiced VOTs for word-initial /b/, which means that the overall distribution has a mean well below 0 and a higher variance. Of course, this is assuming that there's just one distribution, which there clearly isn't. But that's the assumption our model makes, too, so it's a possible explanation. need to follow up on this though.
