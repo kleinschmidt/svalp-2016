@@ -23,7 +23,7 @@ Figure captions are $34 + 20 = 54$.
 
 
 
-# Talk framing
+# Talk framing (discussion/conclusion?)
 
 * what is variation? two perspectives:
     * speech perception: a challenge for listeners to overcome. "lack of invariance", variability in sound-meaning mapping across talkers. until recently, research focuses on making it _go away_.
@@ -45,15 +45,49 @@ Figure captions are $34 + 20 = 54$.
     1. distributional learning works with it.
     2. there's not a lot of variability across talkers, so we predict that there will be pretty strong constraints from prior experience
     3. we have (or soon will have) pretty good estimates of what the variability is like across talkers _in the world_.
+* Predictions: 
+    1. people will learn distributions (change classification depending on what input they get)
+    2. people will have a harder time learning distributions that are more extreme, relative to a typical talker
+    3. 
+
+## Things to get across in this talk:
+
+* prior beliefs constrain adaptation.
+    * Distributional learning method
+* difference between listener's _subjective_ beliefs and _objective_ distribution in the world.
+
+
+## Some figure ideas
+
+* animated gif of adapting in each of the conditions, based on actual inferred prior beliefs (all together)
 
 
 # Talk Outline
 
 * Intro
-* Methods + results
+* Methods 
     * distributional learning paradigm: people hear b/p minimal pairs, click on picture matching what they heard.
+        * (( an actual trial, even if just a video ))
     * we know that in these experiments, people adjust their category boundaries based on the distributions of cues, even without any kind of labeling information. [@Clayards2008, @Munson2011].
-    * we measure how _well_ people learn teh distributionsby 
+        * the _only_ source of information that people have is the _distribution_ of cues that they're getting.
+        * that's why it's called distributional learning: learn (or infer) underlying distributions from a finite sample
+    * we can measure how _well_ people learn teh distributions by comparing the optimal classification function that's predicted by the distributions with the classification functions people actually produce.
+        * (( Example of this for one distribution ))
+* results
+    * people learn: classification functions are different in the different conditions 
+        * (( plot category boundaries, with error bars? except model doesn't converge... ))
+        * (( or just plot categorization functions themselves... ))
+    * people don't learn as _well_ in the more extreme conditions
+        * (( absolute deviation from the predicted category boundary ))
+* Modeling:
+    * okay, so it looks like people are constrained in their adaptation! and the pattern of constraints follows the qualitative prediction of the ideal adapter: farther from typical talker, more you undershoot.
+    * can we explain this pattern of behavior as belief updating starting from a shared set of prior beliefs?
+    * and do the prior beliefs look reasonable given what we know about how talkers vary in the world?
+    * Answer to both is _yes_ (ish)
+        * (( model predicted classification functions vs. actual ))
+* Conclusion
+    * 
+
 # Reviews and responses
 
 
