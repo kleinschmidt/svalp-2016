@@ -32,6 +32,7 @@ Figure captions are $34 + 20 = 54$.
     * it's BOTH: listeners do have to cope with differences in sound-meaning mapping in order to do speech perception. but the _structure_ in the variation across talkers that makes it informative about _who_ the talker is makes it possible to adapt efficiently.
     * critically, in one way of thinking this inference relies on __expectations about what different kinds of talkers will sound like__.
     * present some evidence that people use these kinds of expectations to guide adaptation to an unfamiliar talker.
+    * more detailed the expectations, the more useful they are. predict that expectations will change depending on social variabiles, to the extent that those variables condition talker differences.
 
 
 
@@ -65,7 +66,26 @@ Figure captions are $34 + 20 = 54$.
 # Talk Outline
 
 * Intro
-* Methods 
+    * Want to start by making some basic observations about speech perception
+        * There's variability within categories, so speech perception is a _probabilistic inference_ problem.
+        * Computationally, in order to solve this problem you need to know something about what the underlying distributions look like.
+        * Problem is, these distributions ALSO vary, across talkers. 
+    * How people cope with this variability is one of the longest standing puzzles in speech perception.
+        * When you meet an unfamiliar talker, you don't know what distributions they produce.
+        * Ideal adapter approach: we can formulate talker variability as a __distributional learning problem__, (( much like what is faced during development ?))
+        * Growing body of recent work suggests that one way listeners deal with this is by __rapidly adapting__ to unfamiliar talkers: tracking speech staistics
+        * (( Something about: is this the whole story?? What's the nature of this rapid adaptation? Is it constrained? )) 
+    * But an overlooked aspect of this is where belief updating __starts__
+        * if you have to consider __all__ possible distributions, the task is hopeless! In one sense it's like having re-learning the language
+        * of course, you're not starting from scratch! have a lot of prior experience with __other talkers__.
+        * this lets you rule out a lot of possible distributions before you've heard anything!
+        * of course the tradeoff is that if you'll have a really hard time adapting to someone whose cue distributions you've decided are really unlikely to occur.
+        * this is a really important prediction of the ideal adapter!
+    * THe current study:
+        * Test this prediction of the ideal adapter: listeners adaptation is constrained by the range of accents that talkers typically produce.
+        * Qualitatively: expose people to a variety of accents and just see how well they adapt.
+        * Quantitatively: use a computational model to recover what listeners' expectations were, from the pattern of adaptation to different accents. Do those expectations line up with a typical talker?
+* Experiment methods
     * distributional learning paradigm: people hear b/p minimal pairs, click on picture matching what they heard.
         * (( an actual trial, even if just a video ))
     * we know that in these experiments, people adjust their category boundaries based on the distributions of cues, even without any kind of labeling information. [@Clayards2008, @Munson2011].
@@ -75,7 +95,7 @@ Figure captions are $34 + 20 = 54$.
         * (( Example of this for one distribution ))
 * results
     * people learn: classification functions are different in the different conditions 
-        * (( plot category boundaries, with error bars? except model doesn't converge... ))
+        * (( plot category boundaries, with error bars? except model doesn't converge...or use bootstrapped GLM estimates ))
         * (( or just plot categorization functions themselves... ))
     * people don't learn as _well_ in the more extreme conditions
         * (( absolute deviation from the predicted category boundary ))
@@ -85,8 +105,11 @@ Figure captions are $34 + 20 = 54$.
     * and do the prior beliefs look reasonable given what we know about how talkers vary in the world?
     * Answer to both is _yes_ (ish)
         * (( model predicted classification functions vs. actual ))
+        * (( inferred prior beliefs vs. kronrod and goldrick data ))
 * Conclusion
-    * 
+    * Proof of concept: lots of other possible sources for this constraint. But whatever teh source of it is here, we can recover something from behavior that looks more or less like what the distribution of accents is in the world.
+    * Future work will simultaneously __test__ this explanation and __scale up__ the approach to more interesting subjective prior beliefs.
+
 
 # Reviews and responses
 
@@ -114,3 +137,11 @@ they go beyond by offering a potential reason for _why_ accomodation is not comp
 > (2) given the somewhat surprising pattern of greater malleability for the voiced side is the measure really getting at what the authors suggest?  Invoking the possibility of prevoiced tokens seems post-hoc and allows the authors to claim victory regardless of the results.  That is, if the voiceless side came out more variable, the argument would be that the measure is good because it matches expectations; with the voiced side coming out as it did, bringing in  pre-voiced tokens allows this result to be "expected".
 
 it _is_ a little post hoc. we expected to find that the cue distributions listeners thing are most likely would look just like a "typical" talker's distributions. this is true in the case of /p/ but not /b/, so we asked why. it turns out that the "typical" talker isn't so typical. Most talkers produce _some_ prevoiced VOTs for word-initial /b/, which means that the overall distribution has a mean well below 0 and a higher variance. Of course, this is assuming that there's just one distribution, which there clearly isn't. But that's the assumption our model makes, too, so it's a possible explanation. need to follow up on this though.
+
+
+
+
+
+
+
+
