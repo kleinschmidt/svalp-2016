@@ -56,6 +56,18 @@ data <- supunsup::supunsup_clean %>%
          trueCatNum = as.numeric(trueCat),
          respCatNum = as.numeric(respCat))
 
+data_by_subject <- data %>%
+  group_by(subject, bvotCond, vot) %>%
+  summarise(prob_p = mean(respP))
+
+# correspondence between subject ids and numbers from model
+subjects <-
+  data %>%
+  mutate(subject_num = as.numeric(factor(subject))) %>%
+  group_by(subject, bvotCond, subject_num) %>%
+  summarise() %>%
+  arrange(subject_num)
+
 ```
 
 ```{r distributions, fig.width=8, fig.height=2}
@@ -185,6 +197,54 @@ ggplot(data, aes(x=vot, y=respP, color=bvotCond)) +
 ```{r load-samples}
 
 mod_samples <- readRDS('../nips_2015/data/samples_lapsing.rds')
+
+```
+
+```{r model-vs-class-data, fig.width=8, fig.height=2}
+
+samples_to_dists <- function(samples, subjects, 
+                             mean_name = 'mu', sd_name = 'sigma') {
+
+  means <- data.frame(t(apply(samples[[mean_name]], 2:3, mean)))
+  names(means) <- c('mean_b', 'mean_p')
+  sds <- data.frame(t(apply(samples[[sd_name]], 2:3, mean)))
+  names(sds) <- c('sd_b', 'sd_p')
+
+  data.frame(subjects, means, sds) %>%
+    gather('stat_cat', 'value', mean_b:sd_p) %>%
+    separate(stat_cat, c('statistic', 'category'))
+  
+}
+
+samples_to_class_funs <- function(samples, ...) {
+  samples %>%
+    samples_to_dists(...) %>%
+    spread(statistic, value) %>%
+    group_by(subject, bvotCond) %>%
+    do(stats_to_lhood(., noise_sd=0)) %>%
+    lhood_to_classification %>%
+    group_by(bvotCond, vot) %>%
+    summarise(prob_p = mean(prob_p)) %>%
+    mutate(bvotCondNum = as.numeric(as.character(bvotCond))) %>%
+    filter(vot >= bvotCondNum-20,
+           vot <= bvotCondNum+60)
+}
+
+lapse_rate <- mean(mod_samples$lapse_rate)
+
+mod_class_funs <- mod_samples %>%
+  samples_to_class_funs(subjects, mean_name='mu_n', sd_name='sigma_n') %>%
+  mutate(prob_p = lapse_rate/2 + (1-lapse_rate) * prob_p)
+
+ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
+  geom_line() +
+  geom_pointrange(data=data_by_subject, stat='summary', fun.data='mean_cl_boot') +
+  facet_grid(.~bvotCond) +
+  scale_x_continuous('VOT (ms)') +
+  scale_y_continuous('Probability /p/ response') + 
+  scale_color_discrete('/b/ mean\nVOT')
+
+
 
 ```
 
