@@ -70,6 +70,8 @@ subjects <-
 
 ```
 
+# Methods
+
 ```{r distributions, fig.width=8, fig.height=2}
 
 ## prior_stats <- data.frame(category=factor(c('b', 'p')),
@@ -122,6 +124,8 @@ data %>%
   theme(legend.position='none')
 
 ```
+
+# Results
 
 ```{r class-fcns, fig.width=8, fig.height=2}
 
@@ -193,6 +197,8 @@ ggplot(data, aes(x=vot, y=respP, color=bvotCond)) +
 
 
 ```
+
+# Modeling
 
 ```{r load-samples}
 
@@ -271,7 +277,7 @@ ggplot(mod_prior_lhood, aes(x=vot, y=lhood, group=category)) +
 
 ```
 
-```{r belief-updating-animation}
+```{r fitted-parameter-updating}
 
 library(beliefupdatr)
 ## available from github:
@@ -310,7 +316,7 @@ updated_p_lhoods <-
   
 ```
 
-```{r lhood-fcn-update-animation, fig.retina=2, dev='png', fig.show='animate', cache=FALSE}
+```{r lhood-fcn-update-animation, fig.retina=2, dev='png', fig.show='animate'}
 
 ## likelihood curves
 ggplot(updated_p_lhoods,
@@ -324,7 +330,7 @@ gg_animate(p)
 ```
 
 
-```{r class-fcn-update-animation, fig.retina=2, dev='png', fig.show='animate', cache=FALSE}
+```{r class-fcn-update-animation, fig.retina=2, dev='png', fig.show='animate'}
 
 ## classification functions
 updated_p_lhoods %>%
@@ -338,4 +344,8 @@ updated_p_lhoods %>%
 gg_animate(p)
 
 ```
+
+
+
+
 
