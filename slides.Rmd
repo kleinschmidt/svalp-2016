@@ -70,6 +70,25 @@ subjects <-
 
 ```
 
+# Introduction
+
+```{r belief-updating-setup}
+
+# sample a bunch of means and variances
+# sample data points from one set of categories
+# get log-lhood of each data point under each set of category parameters
+# incrementally accumulate log-lhood
+
+
+
+```
+
+```{r belief-updating-animation, fig.show='animate'}
+
+
+
+```
+
 # Methods
 
 ```{r distributions, fig.width=8, fig.height=2}
