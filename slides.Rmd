@@ -8,10 +8,36 @@ output: html_document
 
 ```{r preamble, message = FALSE, warning = FALSE, error = FALSE, results='hide', echo=FALSE}
 
-knitr::opts_chunk$set(dev = c('svg', 'png', 'pdf'),
+library(knitr)
+
+opts_chunk$set(dev = c('svg', 'png', 'pdf'),
                       error = FALSE, warning = FALSE, message = FALSE,
                       results = 'hide', echo = FALSE,
                       cache = TRUE)
+
+## FRom the gganimate github readme: a hacked-together gif animation hook:
+## https://github.com/dgrtwo/gganimate/blob/master/README.Rmd
+library(animation)
+ani.options(autobrowse = FALSE, interval = 1)
+
+opts_knit$set(animation.fun = function(x, options, format = "gif") {
+  x = c(knitr:::sans_ext(x), knitr:::file_ext(x))
+  fig.num = options$fig.num
+  format = sub("^[.]", "", format)
+  fig.fname = paste0(sub(paste0(fig.num, "$"), "*", x[1]), 
+                     ".", x[2])
+  mov.fname = paste0(sub(paste0(fig.num, "$"), "", x[1]), ".", 
+                     format)
+
+  # order correctly
+  figs <- Sys.glob(fig.fname)
+  figs <- figs[order(as.numeric(stringr::str_match(figs, paste0("(\\d+)\\.", x[2]))[, 2]))]
+
+  animation::im.convert(figs, output = mov.fname)
+  
+  sprintf("![%s](%s)", options$label, paste0(opts_knit$get("base.url"), mov.fname))
+})
+
 
 library(dplyr)
 library(tidyr)
@@ -188,6 +214,9 @@ ggplot(mod_prior_lhood, aes(x=vot, y=lhood, group=category)) +
 ```{r belief-updating-animation, eval=FALSE}
 
 library(beliefupdatr)
+## available from github:
+## devtools::install_github('dgrtwo/gganimate')
+library(gganimate)
 
 samples_to_nix_params <- function(samples) {
   samples %>%
@@ -223,6 +252,12 @@ updated_p %>%
   geom_line() +
   facet_grid(.~n)
 
+  
+```
+
+
+```{r class-fcn-update-animation, fig.show='animate'}
+
 ## classification functions
 updated_p %>%
   group_by(bvotCond, trueCat, n) %>%
@@ -231,10 +266,11 @@ updated_p %>%
   spread(trueCat, lhood) %>%
   mutate(respP = p / (b+p)) %>%
   ggplot(aes(x=vot, y=respP, color=bvotCond,
-             group=paste(bvotCond, n))) +
-  geom_line() +
-  facet_grid(.~n)
+             group=paste(bvotCond, n),
+             frame = n)) +
+  geom_line() -> p
+  ## facet_grid(.~n)
 
-  
+gg_animate(p)
+
 ```
-
