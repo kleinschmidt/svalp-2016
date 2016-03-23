@@ -72,19 +72,27 @@ Figure captions are $34 + 20 = 54$.
         * Problem is, these distributions ALSO vary, across talkers. 
     * How people cope with this variability is one of the longest standing puzzles in speech perception.
         * When you meet an unfamiliar talker, you don't know what distributions they produce.
-        * Ideal adapter approach: we can formulate talker variability as a __distributional learning problem__, (( much like what is faced during development ?))
+        * Ideal adapter approach: we can formulate talker variability as a __distributional learning problem__, ( much like what is faced during development ?)
+            * (( animtation: updating beliefs, single hypothesis version ))
         * Growing body of recent work suggests that one way listeners deal with this is by __rapidly adapting__ to unfamiliar talkers: tracking speech staistics
         * (( Something about: is this the whole story?? What's the nature of this rapid adaptation? Is it constrained? )) 
     * But an overlooked aspect of this is where belief updating __starts__
-        * if you have to consider __all__ possible distributions, the task is hopeless! In one sense it's like having re-learning the language
+        * don't really just consider a single starting point...inference depends on considering many different hypotheses, and finding the one that best explains the data you've gotten.
+        * if you have to consider __all__ possible distributions, the task is hopeless! Not hopeless, but you need a _lot_ more evidence to zero in on the right distributions. In one sense it's like having re-learning the language
         * of course, you're not starting from scratch! have a lot of prior experience with __other talkers__.
-        * this lets you rule out a lot of possible distributions before you've heard anything!
-        * of course the tradeoff is that if you'll have a really hard time adapting to someone whose cue distributions you've decided are really unlikely to occur.
-        * this is a really important prediction of the ideal adapter!
+        * this lets you focus on possibilities that are most likely
+        * price you pay is that you rule out a lot of possible distributions before you've heard anything! you'll have a really hard time adapting to someone whose cue distributions you've decided are really unlikely to occur.
+        * key prediction: being an "ideal adapter" means that adaptation should fail sometimes, and predicts __when__ it should fail
+        * it applies at a lot of different levels:
+            * language as a whole (non-native accents, unusual idiosyncrasies)
+            * groups of talkers (gender, dialect, etc.)
     * THe current study:
-        * Test this prediction of the ideal adapter: listeners adaptation is constrained by the range of accents that talkers typically produce.
+        * Test this at the language level: listeners' adaptation is constrained by the range of accents that talkers typically produce.
+            * proof of concept of how to test this in more specific ways
         * Qualitatively: expose people to a variety of accents and just see how well they adapt.
-        * Quantitatively: use a computational model to recover what listeners' expectations were, from the pattern of adaptation to different accents. Do those expectations line up with a typical talker?
+        * Quantitatively (with a computational model):
+            * is the pattern of adaptation consistent with starting from _a_ shared set of prior beliefs?
+            * if so, do those (inferred) prior beliefs reflect talker variation?
 * Experiment methods
     * distributional learning paradigm: people hear b/p minimal pairs, click on picture matching what they heard.
         * (( an actual trial, even if just a video ))
@@ -107,8 +115,14 @@ Figure captions are $34 + 20 = 54$.
         * (( model predicted classification functions vs. actual ))
         * (( inferred prior beliefs vs. kronrod and goldrick data ))
 * Conclusion
-    * Proof of concept: lots of other possible sources for this constraint. But whatever teh source of it is here, we can recover something from behavior that looks more or less like what the distribution of accents is in the world.
+    * Phonetic distributional learning is __constrained__.
+        * Rapid adaptation via distributional learning (or exemplar tracking!) is __not__ a complete explanation of how we deal with talker variability.
+        * The constraint is consistent an ideal adapter that uses prior experience to constrain the hypotheses it starts with: start from shared prior beliefs that are (roughly) based on actual cross-talker variability
+        * Proof of concept: lots of other possible sources for this constraint. But whatever teh source of it is here, we can recover something from behavior that looks more or less like what the distribution of accents is in the world.
     * Future work will simultaneously __test__ this explanation and __scale up__ the approach to more interesting subjective prior beliefs.
+        * __Weaker constraints__ for contrasts where there's more cross-talker variability (fricatives and vowels)
+        * __Stronger constraints__ when you have more specific prior experience (e.g., gender and dialect).
+    * Really exciting thing: provides a __novel methodological tool__ to probe listeners __subjective beliefs__ about how different indexical variables affect linguistic variables.
 
 
 # Reviews and responses
