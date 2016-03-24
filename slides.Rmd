@@ -79,6 +79,40 @@ subjects <-
 # get log-lhood of each data point under each set of category parameters
 # incrementally accumulate log-lhood
 
+# gamma distribution parametrized by mean and sd
+rgamma_meansd <- function(n, mean, sd, ...) {
+  scale <- sd^2 / mean
+  shape <- mean / scale
+  rgamma(n, shape=shape, scale=scale, ...)
+}
+
+r_particle_prior <- function(mu0 = c(0, 60),
+                             mu_sigma = c(60, 60),
+                             sigma0 = c(5, 30),
+                             sigma_sigma = c(5, 30)){
+  mu <- mapply(rnorm, n=1, mean=mu0, sd=mu_sigma)
+  sigma <- mapply(rgamma_meansd, n=1, mean=sigma0, sd=sigma_sigma)
+  n <- max(sapply(list(mu, sigma), length))
+  list(mu=mu, sigma=sigma, theta=rep(1/n, n))
+}
+
+n_part <- 100
+particles <- lapply(1:n_part, r_particle_prior)
+
+log_sum_exp <- function(x) log(sum(exp(x - max(x)))) + max(x)
+
+# likelihood of data given particle (a mixture model)
+d_particle <- function(x, p, log=FALSE) {
+  log_lhood <- log_sum_exp(dnorm(x, mean=p$mu, sd=p$sigma, log=TRUE) + log(p$theta))
+  if (log) {
+    return(log_lhood)
+  } else {
+    return(exp(log_lhood))
+  }
+}
+
+lapply(particles, d_particle, x=0, log=TRUE)
+
 
 
 ```
