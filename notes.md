@@ -94,7 +94,7 @@ Figure captions are $34 + 20 = 54$.
             * is the pattern of adaptation consistent with starting from _a_ shared set of prior beliefs?
             * if so, do those (inferred) prior beliefs reflect talker variation?
 * Experiment methods
-    * distributional learning paradigm: people hear b/p minimal pairs, click on picture matching what they heard.
+    * distributional learning paradigm: people hear b/p minimal pairs, click on picture matching what they heard. on each trial, VOT is randomly sampled from "accent" distribution (10ms synthesized continuum)
         * (( an actual trial, even if just a video ))
     * we know that in these experiments, people adjust their category boundaries based on the distributions of cues, even without any kind of labeling information. [@Clayards2008, @Munson2011].
         * the _only_ source of information that people have is the _distribution_ of cues that they're getting.
