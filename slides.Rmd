@@ -45,6 +45,8 @@ library(magrittr)
 library(ggplot2)
 library(assertthat)
 
+theme_set(theme_bw())
+
 ## data and helper functions
 ## devtools::install_github('kleinschmidt/phonetic-sup-unsup')
 require(supunsup)
@@ -196,15 +198,26 @@ plot_particle_updating <- function(x, particles,
               color='red') + 
     geom_point(data=xs_before_xidx, aes(x=x, y=0, alpha=1, frame=x_idx), shape='|') + 
     scale_alpha_continuous(range=c(0.00,1)) +
-    guides(alpha = FALSE) ->
+    guides(alpha = FALSE) +
+    theme(panel.grid = element_blank(),
+          panel.border = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.line.y = element_blank()) ->
     p
 
   # if there's a true particle, add its likelihood to the plot
   if (!is.na(true_particle)) {
     true_lhood <- data_frame(x_pdf = x_to_plot_at,
                              lhood = sapply(x_pdf, d_particle, p=true_particle))
-    p <- p + geom_line(data = true_lhood, aes(x=x_pdf, y=lhood), color='blue')
+    lhood_range <- range(true_lhood$lhood)
+    p <- p + 
+      geom_line(data = true_lhood, aes(x=x_pdf, y=lhood), color='blue') +
+      coord_cartesian(ylim = lhood_range + diff(lhood_range)*c(-0.02, 0.2))
   }
+
+  return(p)
 
 }
 
@@ -242,6 +255,7 @@ weighted_particles %>%
 ```{r belief-updating-animation-flat, dev='png', fig.show='animate', fig.width=8, fig.height=4, dependson='belief-updating-setup'}
 
 t_to_plot_at = c(1:20, seq(30, 100, by=10))
+## t_to_plot_at = c(1, 10, 20)
 
 flat_particles <- r_particle_prior(500,
                                    mu0 = c(30, 30),
