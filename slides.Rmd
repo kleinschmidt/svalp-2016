@@ -1,7 +1,12 @@
 ---
 author: "Dave F. Kleinschmidt and T. Florian Jaeger"
 title: "What do you expect from an unfamiliar talker?"
-output: html_document
+output: 
+  revealjs::revealjs_presentation:
+    self_contained: false
+    transition: none
+    reveal_options:
+      center: true
 
 ---
 
@@ -74,7 +79,13 @@ subjects <-
 
 # Introduction
 
+
+
 # Methods
+
+## {data-background-video="demo_trials.mov"}
+
+<!-- This plays a video demo of a few trials... -->
 
 ```{r distributions, fig.width=8, fig.height=2}
 
@@ -130,6 +141,8 @@ data %>%
 ```
 
 # Results
+
+----
 
 ```{r class-fcns, fig.width=8, fig.height=2}
 
@@ -258,6 +271,8 @@ ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
 
 ```
 
+## What do people believe?
+
 ```{r inferred-prior-vs-kronrod, fig.width=4, fig.height=3}
 
 
@@ -280,6 +295,8 @@ ggplot(mod_prior_lhood, aes(x=vot, y=lhood, group=category)) +
 
 
 ```
+
+## Belief updating
 
 ```{r fitted-parameter-updating}
 
@@ -320,6 +337,7 @@ updated_p_lhoods <-
   
 ```
 
+
 ```{r lhood-fcn-update-animation, fig.retina=2, dev='png', fig.show='animate'}
 
 ## likelihood curves
@@ -332,7 +350,6 @@ ggplot(updated_p_lhoods,
 gg_animate(p)
 
 ```
-
 
 ```{r class-fcn-update-animation, fig.retina=2, dev='png', fig.show='animate'}
 
@@ -348,8 +365,6 @@ updated_p_lhoods %>%
 gg_animate(p)
 
 ```
-
-
 
 
 
