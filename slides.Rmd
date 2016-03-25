@@ -87,6 +87,52 @@ subjects <-
 
 <!-- This plays a video demo of a few trials... -->
 
+---
+
+```{r exposure-build-up}
+
+## Show exposure building up...
+
+one_sub <- data %>%
+  filter(bvotCond == 0) %>%
+  filter(subject == first(subject)) %>%
+  select(bvotCond, respP, trial, vot) %>%
+  mutate(trials_tenths = ntile(trial, 10),
+         trials_ten = floor(trial/10)*10)
+
+ggplot(one_sub, aes(x=vot, group=trials_ten,
+                    frame=trials_ten, cumulative=TRUE)) +
+  geom_bar(binwidth=10) +
+  geom_point(aes(y=-5), position=position_jitter(w=5, h=5), alpha=0.2) ->
+  p
+
+gg_animate(p)
+
+one_sub %>%
+  group_by(vot, trials_ten) %>%
+  summarise(respP = sum(respP),
+            n_trial = n()) %>%
+  group_by(vot) %>%
+  arrange(trials_ten) %>%
+  mutate(respP = cumsum(respP),
+         n_trial = cumsum(n_trial),
+         prop_p = respP / n_trial)
+
+## And at the same time, classification function building up
+ggplot(one_sub, aes(x=vot, y=respP, group=trials_ten,
+                    frame=trials_ten)) +
+  geom_point(aes(cumulative=TRUE), position=position_jitter(h=0.1, w=5)) +
+  geom_line(stat='summary', fun.y=mean) ->
+  p
+
+gg_animate(p)
+
+```
+
+---
+
+`r ` subjects on Mechanical Turk
+
 ```{r distributions, fig.width=8, fig.height=2}
 
 ## prior_stats <- data.frame(category=factor(c('b', 'p')),
