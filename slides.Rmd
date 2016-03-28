@@ -22,7 +22,7 @@ output:
 library(knitr)
 
 opts_chunk$set(dev = 'png',
-               fig.retina = 1,
+               fig.retina = 2,
                error = FALSE, warning = FALSE, message = FALSE,
                results = 'hide', echo = FALSE,
                cache = TRUE)
@@ -65,7 +65,9 @@ library(magrittr)
 library(ggplot2)
 library(assertthat)
 
-theme_set(theme_bw())
+theme_set(theme_bw() +
+            theme(panel.border = element_blank())
+          )
 
 ## data and helper functions
 ## devtools::install_github('kleinschmidt/phonetic-sup-unsup')
@@ -106,6 +108,8 @@ subjects <-
 
 <!-- unbeknownst to the listener, we're sampling a VOT randomly on every trial, from a bimodal distribution.  -->
 
+* VOT drawn from bimodal distribution
+
 ```{r exposure-build-up, fig.show='animate'}
 
 ## Show exposure building up...
@@ -120,10 +124,16 @@ one_sub <- data %>%
 ggplot(one_sub, aes(x=vot, group=trials_ten,
                     frame=trials_ten, cumulative=TRUE)) +
   geom_bar(binwidth=10) +
-  geom_point(aes(y=-5), position=position_jitter(w=5, h=5), alpha=0.2) ->
+  geom_point(aes(y=-5), position=position_jitter(w=5, h=5), alpha=0.2) +
+  scale_x_continuous('VOT (ms)', breaks = seq(-20, 60, by=20)) +
+  scale_y_continuous('Count') ->
   p
 
 gg_animate(p)
+
+```
+
+```{r class-fun-build-up, fig.show='animate', eval=FALSE}
 
 one_sub %>%
   group_by(vot, trials_ten) %>%
