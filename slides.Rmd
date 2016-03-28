@@ -5,7 +5,9 @@ output:
   revealjs::revealjs_presentation:
     template: slides_template.html
     self_contained: false
+    keep_md: true
     transition: none
+    background_transition: none
     reveal_options:
       center: true
       history: true
@@ -18,10 +20,11 @@ output:
 
 library(knitr)
 
-opts_chunk$set(dev = c('svg', 'png', 'pdf'),
-                      error = FALSE, warning = FALSE, message = FALSE,
-                      results = 'hide', echo = FALSE,
-                      cache = TRUE)
+opts_chunk$set(dev = 'png',
+               fig.retina = 1,
+               error = FALSE, warning = FALSE, message = FALSE,
+               results = 'hide', echo = FALSE,
+               cache = TRUE)
 
 ## FRom the gganimate github readme: a hacked-together gif animation hook:
 ## https://github.com/dgrtwo/gganimate/blob/master/README.Rmd
@@ -44,6 +47,14 @@ opts_knit$set(animation.fun = function(x, options, format = "gif") {
   animation::im.convert(figs, output = mov.fname)
   
   sprintf("![%s](%s)", options$label, paste0(opts_knit$get("base.url"), mov.fname))
+})
+
+## force png for fig.show='animate'
+opts_hooks$set(fig.show = function(options) {
+  if (options$fig.show == 'animate') {
+    options$dev <- 'png'
+  }
+  options
 })
 
 
@@ -88,11 +99,13 @@ subjects <-
 
 ## {data-background-video="demo_trials.mov"}
 
-<!-- This plays a video demo of a few trials... -->
+<!--SO first I want to show you what the paradigm looks like. hear a word, click on matching picture. all the words are b/p minimal pairs, so voicing is the only thing to distinguish them. -->
 
 ---
 
-```{r exposure-build-up}
+<!-- unbeknownst to the listener, we're sampling a VOT randomly on every trial, from a bimodal distribution.  -->
+
+```{r exposure-build-up, fig.show='animate'}
 
 ## Show exposure building up...
 
@@ -121,22 +134,20 @@ one_sub %>%
          n_trial = cumsum(n_trial),
          prop_p = respP / n_trial)
 
-## And at the same time, classification function building up
-ggplot(one_sub, aes(x=vot, y=respP, group=trials_ten,
-                    frame=trials_ten)) +
-  geom_point(aes(cumulative=TRUE), position=position_jitter(h=0.1, w=5)) +
-  geom_line(stat='summary', fun.y=mean) ->
-  p
+## ## And at the same time, classification function building up
+## ggplot(one_sub, aes(x=vot, y=respP, group=trials_ten,
+##                     frame=trials_ten)) +
+##   geom_point(aes(cumulative=TRUE), position=position_jitter(h=0.1, w=5)) +
+##   geom_line(stat='summary', fun.y=mean) ->
+##   p
 
-gg_animate(p)
+## gg_animate(p)
 
 ```
 
 ---
 
-`r ` subjects on Mechanical Turk
-
-```{r distributions, fig.width=8, fig.height=2}
+```{r distributions, fig.width=8, fig.height=2, out.width='100%'}
 
 ## prior_stats <- data.frame(category=factor(c('b', 'p')),
 ##                           mean = c(0, 60),
@@ -189,11 +200,16 @@ data %>%
 
 ```
 
+* Five "accents" with different VOT distributions
+* $n=`r data %$% subject %>% n_distinct()`$ subjects on Mechanical Turk
+* 222 trials (about 20 minutes)
+
+
 # Results
 
-----
+---
 
-```{r class-fcns, fig.width=8, fig.height=2}
+```{r class-fcns, fig.width=8, fig.height=2, out.width="100%"}
 
 lhood_to_classification <- function(lhood) {
   lhood %>%
@@ -266,6 +282,9 @@ ggplot(data, aes(x=vot, y=respP, color=bvotCond)) +
 
 # Modeling
 
+----
+
+
 ```{r load-samples}
 
 mod_samples <- readRDS('../nips_2015/data/samples_lapsing.rds')
@@ -320,6 +339,8 @@ ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
 
 ```
 
+----
+
 ## What do people believe?
 
 ```{r inferred-prior-vs-kronrod, fig.width=4, fig.height=3}
@@ -344,6 +365,8 @@ ggplot(mod_prior_lhood, aes(x=vot, y=lhood, group=category)) +
 
 
 ```
+
+----
 
 ## Belief updating
 
@@ -387,7 +410,7 @@ updated_p_lhoods <-
 ```
 
 
-```{r lhood-fcn-update-animation, fig.retina=2, dev='png', fig.show='animate'}
+```{r lhood-fcn-update-animation, fig.show='animate'}
 
 ## likelihood curves
 ggplot(updated_p_lhoods,
@@ -400,7 +423,7 @@ gg_animate(p)
 
 ```
 
-```{r class-fcn-update-animation, fig.retina=2, dev='png', fig.show='animate'}
+```{r class-fcn-update-animation, fig.show='animate'}
 
 ## classification functions
 updated_p_lhoods %>%
