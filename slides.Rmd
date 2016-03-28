@@ -216,6 +216,57 @@ data %>%
 * 222 trials (about 20 minutes)
 
 
+## Distributional learning
+
+```{r dist-learning-schematic, fig.width=3, fig.height=3}
+
+one_sub %>%
+  ggplot(aes(x=factor(vot), fill=bvotCond)) +
+  geom_bar(stat='count', show.legend=FALSE) +
+  labs(x = 'VOT (ms)', y='') +
+  ggtitle('1. Exposure distribution')
+
+
+lhood_to_classification <- function(lhood) {
+  lhood %>%
+    spread(category, lhood) %>%
+    mutate(prob_p = p / (p+b))
+}
+
+exposure_stats %>%
+  semi_join(one_sub) %>%
+  group_by(bvotCond) %>%
+  do({stats_to_lhood(.)}) %>%
+  lhood_to_classification() %>%
+  ggplot(aes(x=vot, y=prob_p, color=bvotCond)) +
+  geom_line(size=1, linetype=2) +
+  theme(legend.position = 'none') + 
+  scale_x_continuous('VOT (ms)', breaks = seq(-100, 100, by=20),
+                     limits = range(one_sub$vot)) + 
+  labs(y = 'Probability /p/ response') +
+  ggtitle('2. Predict classification') ->
+  p
+
+print(p)
+
+p <- p +
+  geom_point(data=one_sub,
+             aes(x=vot, y=respP),
+             stat='summary', fun.y=mean)
+
+## print(p)
+
+p <- p +
+  stat_smooth(method = 'glm', method.args = list(family='binomial'),
+              data=one_sub,
+              aes(x=vot, y=respP),
+              alpha = 0) +
+  ggtitle('3. Measure and compare')
+
+print(p)
+
+```
+
 # Results
 
 ---
