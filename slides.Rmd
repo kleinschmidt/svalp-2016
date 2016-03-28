@@ -342,6 +342,45 @@ ggplot(data, aes(x=vot, y=respP, color=bvotCond)) +
 
 ```
 
+---
+
+```{r boundary-violin-plots, fig.widt=6.5, fig.height=4.5}
+
+ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
+  geom_violin(color='white',draw_quantiles=c(0.25, 0.5, 0.75), show.legend=FALSE) +
+  geom_segment(data = boundaries %>%    # prior boundary
+                 summarise(xmin = min(as.numeric(bvotCond))-0.5,
+                           xmax = max(as.numeric(bvotCond))+0.5,
+                           y = unique(prior_bound)),
+               aes(x=xmin, xend=xmax, y=y, yend=y, fill=NA),
+               color='black', linetype=2) + 
+  geom_segment(aes(x=as.numeric(bvotCond)-.5, # exposure boundaries
+                   xend=as.numeric(bvotCond)+.5,
+                   y=ideal_boundary,
+                   yend=ideal_boundary,
+                   color=bvotCond),
+               linetype = 2, size = 1,
+               data = boundaries %>% group_by(bvotCond, ideal_boundary) %>% summarise()) +
+  geom_violin(color='white',draw_quantiles=c(0.25, 0.5, 0.75), show.legend=FALSE) +
+  coord_flip() +
+  geom_text(data=(boundaries %>% filter(bvotCond==20) %>% head(n=1)),
+            aes(y=ideal_boundary, color=bvotCond),
+            ## x=3.5, y=41, 
+            label='Intended boundary',
+            hjust = 0, vjust = 0,
+            nudge_x = -0.5, nudge_y = 1) +
+  geom_text(data=(boundaries %>% filter(bvotCond==20) %>% head(n=1)),
+            aes(y=prior_boundary), color='black',
+            ## x=3.5, y=41, 
+            label='Typical talker\'s \nboundary',
+            hjust = 1, vjust = 0,
+            nudge_x = -0.5, nudge_y = -1) +
+  theme(legend.position='none') +
+  labs(x = 'Condition (Mean /b/ VOT)',
+       y = 'Category boundary (ms VOT)')
+
+```
+
 # Modeling
 
 ----
