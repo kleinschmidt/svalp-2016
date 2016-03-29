@@ -105,10 +105,10 @@ exposure_stats <- data %>%
 
 sd_noise = sqrt(82)
 
-stats_to_lhood <- function(stats, noise_sd=sd_noise) {
+stats_to_lhood <- function(stats, noise_sd=sd_noise, xlim=c(-30, 90)) {
   stats %>%
     group_by(category, mean, sd) %>%
-    do(data.frame(vot=seq(-30, 90, 0.5))) %>%
+    do(data.frame(vot=seq(xlim[1], xlim[2], 0.5))) %>%
     ungroup() %>%
     mutate(lhood = dnorm(vot, mean, sqrt(sd^2 + noise_sd^2))) %>%
     select(-mean, -sd)
@@ -159,11 +159,12 @@ one_sub  %>%
              fill = bvotCond, color = bvotCond,
              frame=trials_frame, cumulative=TRUE)) +
   geom_bar(binwidth=10) +
-  geom_point(aes(y=-5), position=position_jitter(w=5, h=5), alpha=0.2) +
+  geom_point(aes(y=-5), position=position_jitter(w=5, h=5), alpha=0.5) +
   scale_x_continuous('VOT (ms)', breaks = seq(-20, 60, by=20)) +
   scale_y_continuous('Count') + 
   scale_fill_discrete(drop=FALSE) +
-  scale_color_discrete(drop=FALSE) ->
+  scale_color_discrete(drop=FALSE) +
+  theme(legend.position='none') ->
   p
 
 gg_animate(p)
@@ -197,7 +198,7 @@ one_sub %>%
 
 ## Distributional learning
 
-```{r dist-learning-schematic, fig.width=3, fig.height=3, dependson='one-sub'}
+```{r dist-learning-schematic, fig.width=3, fig.height=3, out.width="33%", dependson='one-sub'}
 
 one_sub %>%
   ggplot(aes(x=factor(vot), fill=bvotCond)) +
@@ -514,18 +515,61 @@ samples_to_prior_stats <- function(samples, mean_name='mu_0', sd_name='sigma_0')
 }
 
 mod_prior_lhood <- mod_samples %>%
-  samples_to_prior_stats %>%
-  stats_to_lhood(noise_sd = 0)
+  samples_to_prior_stats() %>%
+  stats_to_lhood(noise_sd = 0, xlim=c(-100,90)) %>%
+  mutate(source = "Inferred prior")
 
-ggplot(mod_prior_lhood, aes(x=vot, y=lhood, group=category)) +
-  geom_line(aes(linetype='Inferred\nprior')) +
-  geom_line(data=prior_lhood, aes(linetype='Kronrod et\nal. (2012)')) +
+supunsup::prior_stats %>%
+  filter(source=='goldrick2013') %>%
+  group_by(prevoiced, category) %>%
+  do({stats_to_lhood(., xlim=c(-100, 90))}) %>%
+  spread(prevoiced, lhood) %>%
+  mutate(source = "Goldrick et al. (2013)") %>%
+  mutate(lhood = `TRUE` * 0.37 + `FALSE` * 0.63) ->
+  goldrick_lhood
+
+all_priors <- prior_lhood %>%
+  mutate(source = "Kronrod et al. (2012)") %>%
+  bind_rows(mod_prior_lhood) %>%
+  bind_rows(goldrick_lhood) %>%
+  mutate(source = factor(source,
+                         levels = c("Inferred prior",
+                                    "Kronrod et al. (2012)",
+                                    "Goldrick et al. (2013)")))
+  
+
+all_priors %>%
+  filter(as.numeric(source) < 3) %>%
+  ggplot(aes(x=vot, y=lhood, group=paste(category, source), linetype=source)) +
+  ## geom_line(aes(linetype='Inferred prior')) +
+  ## geom_line(data=prior_lhood, aes(linetype='Kronrod et al. (2012)')) +
+  geom_line() + 
   scale_linetype_discrete('Source') +
   scale_x_continuous('VOT (ms)') +
-  scale_y_continuous('Likelihood')
+  scale_y_continuous('Likelihood') 
+
+```
+
+## Inferred prior beliefs
+
+```{r inferred-prior-vs-goldrick, fig.width=10, fig.height=3.5, out.width='100%'}
+
+ggplot() +
+  ## geom_line(aes(linetype='Inferred prior')) +
+  ## geom_line(data=prior_lhood, aes(linetype='Kronrod et al. (2012)')) +
+  geom_line(data =all_priors,
+            aes(x=vot, y=lhood, group=paste(category, source), linetype=source)) + 
+  scale_linetype_discrete('Source') +
+  scale_x_continuous('VOT (ms)') +
+  scale_y_continuous('Likelihood') +
+  ## geom_segment(x = -70, xend = -95, y = 0.02, yend = 0.005,
+  ##              arrow = arrow(length = unit(0.03, 'npc'))) +
+  ## geom_text(x = -68, y=0.02, label = '37% tokens were\nprevoiced',
+  ##           hjust = 0)
 
 
 ```
+
 
 ----
 
