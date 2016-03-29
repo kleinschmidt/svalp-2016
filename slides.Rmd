@@ -119,6 +119,73 @@ stats_to_lhood <- function(stats, noise_sd=sd_noise, xlim=c(-30, 90)) {
 
 # Introduction
 
+---
+
+
+
+```{r newman-figs}
+
+```
+
+<div class="notes">
+* This is a conference about variation
+* I'm going to talk about it from the point of view of speech __perception__, where it's typically thought of as a __problem__.
+* The problem is this: talkers differ in the distributions of acoustic cues they produce for each underlying linguistic category.
+* These differences can lead to comprehension problems if you try to apply the classification strategy that worked for one talker to another talker
+</div>
+
+---
+
+```{r }
+
+## Samples from an intermediate prior
+
+```
+
+<div class="notes">
+* Talker variability means that when you first meet an unfamiliar talker, you don't know what their cue distributions look like.
+* This leads directly to uncertainty about how to classify their speech
+</div>
+
+---
+
+<div class="notes">
+* Listeners rapidly adapt to unfamiliar talker
+* In __ideal adapter__ framework, we can think of it as a __distributional learning__ process: infer talker's distributions by updating beliefs, based on observations
+</div>
+
+```{r }
+
+## belief updating animation
+
+```
+
+---
+
+```{r }
+
+## belief updating animation for FLAT prior and MISINFORMED
+
+```
+
+<div class="notes">
+* Highlights a commonly overlooked aspect: where does belief updating __start__?
+* There's a tradeoff between being __flexible__ enough to handle variation, but not so __flexible__ that you basically end up re-learning the language
+* If you start off considering __all possible__ distributions, it's going to take a lot more evidence to converge on accurate beliefs
+* On the other hand, if you're too confident and you end up being wrong, it __also__ takes a ton of evidence to overcome your prior beliefs
+* The thing you need to do, more or less, is match your prior expectations to your prior experience with __distribution of talkers in the world__
+* (( applies both at the level of the whole language/all talkers, and for more specific groups when those are informative ))
+</div>
+
+---
+
+<div class="notes">
+* At the highest level: part of what makes an ideal adapter "ideal" is that sometimes it __won't__ rapidly adapt.
+* Prediction: rapid adaptation is constrained by variability in accents across talkers
+* Current study: test this prediction at the __language level__ for a contrast where there's __little variability across talkers__ and we'd predict strong constraints
+* Proof of concept: can we recover listeners' shared prior beliefs from how well they adapt?
+</div>
+
 ## Questions
 
 > 1. Is rapid adaptation to an unfamiliar talker __constrained__?
