@@ -163,9 +163,272 @@ ggplot(curves, aes(x=x, y=p, color=Talker)) +
 
 ---
 
-```{r }
+```{r particle-setup}
 
-## Samples from an intermediate prior
+
+# sample a bunch of means and variances
+# sample data points from one set of categories
+# get log-lhood of each data point under each set of category parameters
+# incrementally accumulate log-lhood
+
+# gamma distribution parametrized by mean and sd
+rgamma_meansd <- function(n, mean, sd, ...) {
+  scale <- sd^2 / mean
+  shape <- mean / scale
+  rgamma(n, shape=shape, scale=scale, ...)
+}
+
+# sample a single prior from a base distribution
+r_particle_one <- function(mu0 = c(0, 60),
+                             mu_sigma = c(20, 20),
+                             sigma0 = c(10, 15),
+                             sigma_sigma = c(5, 5)) {
+  k <- max(sapply(list(mu0, sigma0, mu_sigma, sigma_sigma), length))
+  mu <- rnorm(n=k, mean=mu0, sd=mu_sigma)
+  sigma <- rgamma_meansd(n=k, mean=sigma0, sd=sigma_sigma)
+  n <- max(sapply(list(mu, sigma), length))
+  list(mu=mu, sigma=sigma, theta=rep(1/n, n))
+}
+r_particle_prior <- function(n, ...) lapply(1:n, function(n, ...) r_particle_one(...), ...)
+
+
+log_sum_exp <- function(x) log(sum(exp(x - max(x)))) + max(x)
+
+# likelihood of data given particle (a mixture model)
+d_particle <- function(x, p, log=FALSE) {
+  log_lhood <- log_sum_exp(dnorm(x, mean=p$mu, sd=p$sigma, log=TRUE) + log(p$theta))
+  if (log) {
+    return(log_lhood)
+  } else {
+    return(exp(log_lhood))
+  }
+}
+
+normalize <- function(x) x / sum(x)
+
+# classification function from mixture particle
+id_particle <- function(x, p) {
+  
+  # compute likelihood
+  sapply(x, function(xx) normalize(dnorm(xx, mean=p$mu, sd=p$sigma, log=FALSE) * p$theta)[1])
+
+}
+#' Re-weight particles based on data
+#'
+#' @param x Sequence of data to update particles with (in order)
+#' @param particles List of particles to update
+#' @param d_part Likelihood function (called as d_part(x, p, log=TRUE)).
+#'
+#' @return A data_frame with columns x, x_idx (data/time index), p (particle),
+#'   p_idx (particle index), lhood (log likelihood of data point under particle),
+#'   lhood_cumulative (cumulative log likelihood of particle to that point) and
+#'   weight (normalized particle weights at current time)
+weight_particles <- function(x, particles, d_part) {
+
+  data_frame(x) %>%
+    mutate(x_idx = row_number()) %>%
+    group_by(x, x_idx) %>%
+    do({ data_frame(p=particles) %>% mutate(p_idx = row_number()) }) %>%
+    rowwise() %>%
+    mutate(lhood = d_part(x, p, log=TRUE)) %>%
+    group_by(p_idx) %>%
+    arrange(x_idx) %>%
+    mutate(lhood_cumulative = cumsum(lhood)) %>%
+    group_by(x_idx) %>%
+    mutate(weight = exp(lhood_cumulative - log_sum_exp(lhood_cumulative)))
+
+}
+
+particles_to_lhood_df <- function(particles, x) {
+  # data frame with pdf for each particle
+  data_frame(p = particles) %>%
+    mutate(p_idx = row_number()) %>%
+    group_by(p_idx) %>%
+    do({ data_frame(x_pdf = x,
+                    particle_lhood = sapply(x_pdf, d_particle, p=.$p[[1]], log=FALSE),
+                    particle_lhood_normalized = particle_lhood / max(particle_lhood)
+                    )
+    }) %>%
+    ungroup()
+}
+
+particles_to_id_df <- function(particles, x) {
+  data_frame(p = particles) %>%
+    mutate(p_idx = row_number()) %>%
+    group_by(p_idx) %>%
+    do({ data_frame(x_id = x,
+                    particle_id = id_particle(x = x_id, p = .$p[[1]])) })
+}
+
+plot_particles_lhood <- function(particles, x_to_plot_at, true_particle = NA) {
+
+  particle_pdfs <- particles %>%
+    particles_to_lhood_df(x = x_to_plot_at)
+
+  particle_pdfs_marginal <- particle_pdfs %>%
+    group_by(x_pdf) %>%
+    summarise(marginal_lhood = mean(particle_lhood))
+  
+
+  particle_pdfs %>%
+    ggplot() +
+    geom_line(aes(x=x_pdf, y=particle_lhood, group=p_idx,
+                  color='Hypotheses'), alpha=0.1) +
+    geom_line(data=particle_pdfs_marginal,
+              aes(x=x_pdf, y=marginal_lhood, color='Marginal')) +
+    guides(alpha = FALSE) +
+    theme_particles() +
+    labs(y='') +
+    scale_color_manual(breaks = c('Hypotheses', 'Marginal', 'Truth'),
+                       values = c('black', 'red', 'blue'),
+                       guide = FALSE) ->
+    p
+
+  if (!missing(true_particle)) {
+    true_lhood <- data_frame(x_pdf = x_to_plot_at,
+                             lhood = sapply(x_pdf, d_particle, p=true_particle))
+    lhood_range <- range(true_lhood$lhood)
+    p <- p + 
+      geom_line(data = true_lhood, aes(x=x_pdf, y=lhood, color='Truth')) +
+      coord_cartesian(ylim = lhood_range + diff(lhood_range)*c(-0.02, 0.2))
+  }
+
+  p
+}
+
+plot_particles_id <- function(particles, x_to_plot_at, true_particle = NA) {
+  particle_ids <- particles %>%
+    particles_to_id_df(x = x_to_plot_at)
+
+  particle_ids_marginal <- particle_ids %>%
+    group_by(x_id) %>%
+    summarise(marginal_id = mean(particle_id))
+  
+  particle_ids %>%
+    ggplot(aes(x=x_id, y=particle_id)) +
+    geom_line(alpha=0.1,
+              aes(group=p_idx, color='Hypotheses')) +
+    geom_line(data = particle_ids_marginal,
+              aes(y = marginal_id, color='Marginal')) +
+    labs(y = 'Probability of /p/') +
+    theme_particles() +
+    scale_color_manual(breaks = c('Hypotheses', 'Marginal', 'Truth'),
+                       values = c('black', 'red', 'blue'),
+                       guide = FALSE) ->
+    p
+
+  if (!missing(true_particle)) {
+    true_id <- data_frame(x_id = x_to_plot_at,
+                          id = id_particle(x=x_id, p=true_particle))
+    p <- p +
+      geom_line(data = true_id, aes(y = id, color='Truth'))
+  }
+
+  p
+}
+
+plot_particle_updating <- function(x, particles,
+                                   x_idx_to_plot_at = round(seq(1, length(x), length.out=11)),
+                                   x_to_plot_at = seq(-30, 120),
+                                   true_particle = NA) {
+
+  times_to_plot <- seq(1, 200, by=20)
+
+  weighted_particles <-
+    weight_particles(x, particles, d_particle) %>%
+    ungroup() %>% 
+    filter(x_idx %in% x_idx_to_plot_at)
+
+  # data frame with pdf for each particle
+  particle_pdfs <- particles %>%
+    particles_to_lhood_df(x = x_to_plot_at) %>%
+    full_join(weighted_particles, by='p_idx')
+
+  # for marginal pdf
+  particle_pdfs_marginal <- particle_pdfs %>%
+    group_by(x_idx, x_pdf) %>%
+    summarise(marginal_lhood = sum(weight * particle_lhood))
+
+  # for carpet plot of data points
+  xs_before_xidx <- data_frame(x_idx = x_idx_to_plot_at) %>%
+    group_by(x_idx) %>%
+    do({ data_frame(x = x[1:.$x_idx]) })
+
+  particle_pdfs %>%
+    ggplot() +
+    geom_line(aes(x=x_pdf, y=particle_lhood, alpha=weight, group=p_idx, frame=x_idx)) +
+    geom_line(data=particle_pdfs_marginal,
+              aes(x=x_pdf, y=marginal_lhood, group=x_idx, frame=x_idx),
+              color='red') + 
+    geom_point(data=xs_before_xidx, aes(x=x, y=0, alpha=1, frame=x_idx), shape='|') + 
+    scale_alpha_continuous(range=c(0.00,1)) +
+    guides(alpha = FALSE) +
+    theme(panel.grid = element_blank(),
+          panel.border = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.line.y = element_blank()) ->
+    p
+
+  # if there's a true particle, add its likelihood to the plot
+  if (!is.na(true_particle)) {
+    true_lhood <- data_frame(x_pdf = x_to_plot_at,
+                             lhood = sapply(x_pdf, d_particle, p=true_particle))
+    lhood_range <- range(true_lhood$lhood)
+    p <- p + 
+      geom_line(data = true_lhood, aes(x=x_pdf, y=lhood), color='blue') +
+      coord_cartesian(ylim = lhood_range + diff(lhood_range)*c(-0.02, 0.2))
+  }
+
+  return(p)
+
+}
+
+# draw samples from the data distribution of a particle
+sample_from_particle <- function(n, p) {
+  K <- max(sapply(p, length))
+  k <- sample(K, size=n, replace=TRUE, prob = rep(p$theta,length.out=K))
+  rnorm(n, mean = p$mu[k], sd = p$sigma[k])
+}
+
+theme_particles <- function() {
+  theme(panel.grid = element_blank(),
+        panel.border = element_blank(),
+        ## axis.title.y = element_blank(), 
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.line.y = element_blank())
+}
+
+particle_population <- 200
+x_to_plot_at <- seq(-30, 100)
+true_particle <- list(mu = c(0, 60),
+                      sigma = c(10, 22),
+                      theta = c(0.5, 0.5))
+
+```
+
+```{r okay_samples, fig.width=4, fig.height=3, out.width="50%"}
+
+
+
+## Samples from an intermediate prior + classification fun samples
+okay_particles <- r_particle_prior(particle_population,
+                                   mu0 = c(0, 60),
+                                   mu_sigma = 10,
+                                   sigma0 = c(20, 20),
+                                   sigma_sigma = c(5, 5))
+
+
+okay_particles %>%
+  plot_particles_lhood(x_to_plot_at = x_to_plot_at) +
+  labs(y = '', x = 'VOT (ms)') +
+  ylim(c(NA, 0.07))
+
+okay_particles %>%
+  plot_particles_id(x_to_plot_at = x_to_plot_at) +
+  labs(y = 'Probability of /p/', x = 'VOT (ms)')
 
 ```
 
