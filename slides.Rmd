@@ -27,10 +27,17 @@ opts_chunk$set(dev = 'png',
                results = 'hide', echo = FALSE,
                cache = TRUE)
 
-## FRom the gganimate github readme: a hacked-together gif animation hook:
-## https://github.com/dgrtwo/gganimate/blob/master/README.Rmd
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(ggplot2)
+library(assertthat)
+library(gganimate)
 library(animation)
 ani.options(autobrowse = FALSE, interval = .2)
+
+## FRom the gganimate github readme: a hacked-together gif animation hook:
+## https://github.com/dgrtwo/gganimate/blob/master/README.Rmd
 
 opts_knit$set(animation.fun = function(x, options, format = "gif") {
   x = c(knitr:::sans_ext(x), knitr:::file_ext(x))
@@ -50,20 +57,16 @@ opts_knit$set(animation.fun = function(x, options, format = "gif") {
   sprintf("![%s](%s)", options$label, paste0(opts_knit$get("base.url"), mov.fname))
 })
 
-## force png for fig.show='animate'
+## force png and fig.retina=1 for fig.show='animate'
 opts_hooks$set(fig.show = function(options) {
   if (options$fig.show == 'animate') {
     options$dev <- 'png'
+    options$fig.retina <- 1
   }
   options
 })
 
 
-library(dplyr)
-library(tidyr)
-library(magrittr)
-library(ggplot2)
-library(assertthat)
 
 theme_set(theme_bw() +
             theme(panel.border = element_blank())
@@ -92,6 +95,26 @@ subjects <-
   summarise() %>%
   arrange(subject_num)
 
+
+prior_stats <- supunsup::prior_stats %>%
+  filter(source == 'kronrod2012')
+
+exposure_stats <- data %>%
+  group_by(bvotCond, category=trueCat) %>%
+  summarise(mean=mean(vot), sd=sd(vot))
+
+sd_noise = sqrt(82)
+
+stats_to_lhood <- function(stats, noise_sd=sd_noise) {
+  stats %>%
+    group_by(category, mean, sd) %>%
+    do(data.frame(vot=seq(-30, 90, 0.5))) %>%
+    ungroup() %>%
+    mutate(lhood = dnorm(vot, mean, sqrt(sd^2 + noise_sd^2))) %>%
+    select(-mean, -sd)
+}
+
+
 ```
 
 # Introduction
@@ -108,25 +131,35 @@ subjects <-
 
 <!-- unbeknownst to the listener, we're sampling a VOT randomly on every trial, from a bimodal distribution.  -->
 
-* VOT drawn from bimodal distribution
+VOT drawn from a __bimodal distribution__
 
-```{r exposure-build-up, fig.show='animate'}
+```{r one-sub}
+
+one_sub <- data %>%
+  filter(bvotCond == -10) %>%
+  filter(subject == first(subject)) %>%
+  select(bvotCond, respP, trial, vot)
+
+```
+
+```{r exposure-build-up, fig.show='animate', fig.width=6.5, fig.height=4.5, dependson='one-sub'}
 
 ## Show exposure building up...
 
-one_sub <- data %>%
-  filter(bvotCond == 0) %>%
-  filter(subject == first(subject)) %>%
-  select(bvotCond, respP, trial, vot) %>%
+one_sub  %>%
+  arrange(trial) %>%
   mutate(trials_tenths = ntile(trial, 10),
-         trials_ten = floor(trial/10)*10)
-
-ggplot(one_sub, aes(x=vot, group=trials_ten,
-                    frame=trials_ten, cumulative=TRUE)) +
+         trials_ten = floor(trial/10)*10,
+         trials_frame = ifelse(trial < 20, trial, trials_ten)) %>%
+  ggplot(aes(x=vot, group=trials_frame,
+             fill = bvotCond, color = bvotCond,
+             frame=trials_frame, cumulative=TRUE)) +
   geom_bar(binwidth=10) +
   geom_point(aes(y=-5), position=position_jitter(w=5, h=5), alpha=0.2) +
   scale_x_continuous('VOT (ms)', breaks = seq(-20, 60, by=20)) +
-  scale_y_continuous('Count') ->
+  scale_y_continuous('Count') + 
+  scale_fill_discrete(drop=FALSE) +
+  scale_color_discrete(drop=FALSE) ->
   p
 
 gg_animate(p)
@@ -160,12 +193,13 @@ one_sub %>%
 
 ## Distributional learning
 
-```{r dist-learning-schematic, fig.width=3, fig.height=3}
+```{r dist-learning-schematic, fig.width=3, fig.height=3, dependson='one-sub'}
 
 one_sub %>%
   ggplot(aes(x=factor(vot), fill=bvotCond)) +
   geom_bar(stat='count', show.legend=FALSE) +
   labs(x = 'VOT (ms)', y='') +
+  scale_fill_discrete(drop = FALSE) +
   ggtitle('1. Exposure distribution')
 
 
@@ -178,7 +212,7 @@ lhood_to_classification <- function(lhood) {
 exposure_stats %>%
   semi_join(one_sub) %>%
   group_by(bvotCond) %>%
-  do({stats_to_lhood(.)}) %>%
+  do({stats_to_lhood(., noise_sd=0)}) %>%
   lhood_to_classification() %>%
   ggplot(aes(x=vot, y=prob_p, color=bvotCond)) +
   geom_line(size=1, linetype=2) +
@@ -186,6 +220,7 @@ exposure_stats %>%
   scale_x_continuous('VOT (ms)', breaks = seq(-100, 100, by=20),
                      limits = range(one_sub$vot)) + 
   labs(y = 'Probability /p/ response') +
+  scale_color_discrete(drop = FALSE) + 
   ggtitle('2. Predict classification') ->
   p
 
@@ -199,10 +234,10 @@ p <- p +
 ## print(p)
 
 p <- p +
-  stat_smooth(method = 'glm', method.args = list(family='binomial'),
-              data=one_sub,
-              aes(x=vot, y=respP),
-              alpha = 0) +
+  geom_line(stat='smooth', method = 'glm', method.args = list(family='binomial'),
+            data=one_sub,
+            aes(x=vot, y=respP),
+            size = 0.5) +
   ggtitle('3. Measure and compare')
 
 print(p)
@@ -216,24 +251,6 @@ print(p)
 ## prior_stats <- data.frame(category=factor(c('b', 'p')),
 ##                           mean = c(0, 60),
 ##                           sd = sqrt(c(14, 254)))
-
-prior_stats <- supunsup::prior_stats %>%
-  filter(source == 'kronrod2012')
-
-exposure_stats <- data %>%
-  group_by(bvotCond, category=trueCat) %>%
-  summarise(mean=mean(vot), sd=sd(vot))
-
-sd_noise = sqrt(82)
-
-stats_to_lhood <- function(stats, noise_sd=sd_noise) {
-  stats %>%
-    group_by(category, mean, sd) %>%
-    do(data.frame(vot=seq(-30, 90, 0.5))) %>%
-    ungroup() %>%
-    mutate(lhood = dnorm(vot, mean, sqrt(sd^2 + noise_sd^2))) %>%
-    select(-mean, -sd)
-}
 
 exposure_lhood <- exposure_stats %>%
   group_by(bvotCond) %>%
@@ -346,7 +363,7 @@ ggplot(data, aes(x=vot, y=respP, color=bvotCond)) +
 
 ---
 
-```{r boundary-violin-plots, fig.widt=6.5, fig.height=4.5}
+```{r boundary-violin-plots, fig.width=6.5, fig.height=4.5}
 
 ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
   geom_violin(color='white',draw_quantiles=c(0.25, 0.5, 0.75), show.legend=FALSE) +
