@@ -119,9 +119,13 @@ stats_to_lhood <- function(stats, noise_sd=sd_noise) {
 
 # Introduction
 
+## Questions
 
+> 1. Is rapid adaptation to an unfamiliar talker __constrained__?
+> 2. Are constraints consistent with listeners starting from a __single set of prior beliefs__?
+> 3. Do these inferred prior beliefs reflect __talker variation__?
 
-# Methods
+# Experiment
 
 ## {data-background-video="demo_trials.mov"}
 
@@ -286,9 +290,7 @@ data %>%
 * 222 trials (about 20 minutes)
 
 
-# Results
-
----
+## Results
 
 ```{r class-fcns, fig.width=8, fig.height=2, out.width="100%"}
 
@@ -400,9 +402,33 @@ ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
 
 ```
 
+---
+
+## Questions
+
+1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
+    * __Yes__: worse learning for extreme accents
+2. Are constraints consistent with listeners starting from a __single set of prior beliefs__?
+3. Do these inferred prior beliefs reflect __talker variation__?
+
 # Modeling
 
-----
+## Previous belief updating model
+
+> * Phonetic categories are distributions of cues with unknown mean and variance
+> * Assume a __known__ set of prior beliefs
+> * Update beliefs with exposure to unfamiliar talker
+> * Changes in beliefs predict changes in classification/category boundary
+
+## Inferring prior beliefs
+
+> * Treat prior beliefs as __unknown__
+> * Infer set of prior beliefs that best explains adaptation to different accents:
+>     * Prior __expected__ mean and variance
+>     * __Confidence__ in prior beliefs
+
+---
+
 
 
 ```{r load-samples}
@@ -411,7 +437,15 @@ mod_samples <- readRDS('../nips_2015/data/samples_lapsing.rds')
 
 ```
 
-```{r model-vs-class-data, fig.width=8, fig.height=2}
+## Questions
+
+1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
+2. <span class="asking">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
+3. Do these inferred prior beliefs reflect __talker variation__?
+
+---
+
+```{r model-vs-class-data, fig.width=8, fig.height=2, out.width='100%'}
 
 samples_to_dists <- function(samples, subjects, 
                              mean_name = 'mu', sd_name = 'sigma') {
@@ -459,12 +493,19 @@ ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
 
 ```
 
+## Questions
+
+1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
+    * __Yes__.
+2. <span class="yes">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
+    * __Yes__.
+3. <span class="fragment highlight-red">Do these inferred prior beliefs reflect __talker variation__?</span>
+
 ----
 
-## What do people believe?
+## Inferred prior beliefs
 
-```{r inferred-prior-vs-kronrod, fig.width=4, fig.height=3}
-
+```{r inferred-prior-vs-kronrod, fig.width=10, fig.height=3.5, out.width='100%'}
 
 samples_to_prior_stats <- function(samples, mean_name='mu_0', sd_name='sigma_0') {
   data.frame(category = c('b', 'p'),

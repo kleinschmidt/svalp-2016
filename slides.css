@@ -2,3 +2,15 @@
     border: 0px;
     box-shadow: none;
 }
+
+.reveal li {
+    margin: 6px 0;
+}
+
+.reveal li .yes {
+    color: green;
+}
+
+.reveal li .asking {
+    color: red;
+}
