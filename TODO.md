@@ -1,4 +1,4 @@
-* fix revealjs image bullshi
+* [done] fix revealjs image bullshi
     * is there some way to just force <img> tags always? or at least get rid of the `\` rmarkdown puts after the markdown image tags?
     * (specifying fig.retina seems to work.)
 * actually write talk slides...
@@ -9,12 +9,17 @@
         * [done] inferred prior figure
         * [done] (w/ matt's prevoicing data, too)
             * fix arrow and caption for prevoicing
+        * color/formatting on prior figures
     * [done] reference slide of "questions" to keep coming back to
     * write intro slides
         * (with placeholders for any fancy intro animations)
-    * writ conclusion slides
+    * [done] writ conclusion slides
+* get presentation down
+    * speaker notes
+    * run through
+    * revise
 * Themeing
-    * get rid of border around images
+    * [done] get rid of border around images
     * fonts and colors
 * Intro figures/animations
     * Category boundary animations for particles?
