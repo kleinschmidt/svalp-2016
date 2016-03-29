@@ -291,7 +291,7 @@ data %>%
 * 222 trials (about 20 minutes)
 
 
-## Results
+## Results: classification
 
 ```{r class-fcns, fig.width=8, fig.height=2, out.width="100%"}
 
@@ -364,7 +364,7 @@ ggplot(data, aes(x=vot, y=respP, color=bvotCond)) +
 
 ```
 
----
+## Results: category boundaries
 
 ```{r boundary-violin-plots, fig.width=6.5, fig.height=4.5}
 
@@ -408,7 +408,7 @@ ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
 ## Questions
 
 1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
-    * __Yes__: worse learning for extreme accents
+    * __Yes__: Less adaptation to extreme accents
 2. Are constraints consistent with listeners starting from a __single set of prior beliefs__?
 3. Do these inferred prior beliefs reflect __talker variation__?
 
@@ -441,10 +441,11 @@ mod_samples <- readRDS('../nips_2015/data/samples_lapsing.rds')
 ## Questions
 
 1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
-2. <span class="asking">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
+    * __Yes__: Less adaptation to extreme accents
+2. <span class="fragment highlight-red">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
 3. Do these inferred prior beliefs reflect __talker variation__?
 
----
+## Model vs. data: classification
 
 ```{r model-vs-class-data, fig.width=8, fig.height=2, out.width='100%'}
 
@@ -497,9 +498,9 @@ ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
 ## Questions
 
 1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
-    * __Yes__.
+    * __Yes__: Less adaptation to extreme accents
 2. <span class="yes">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
-    * __Yes__.
+    * __Yes__: Belief updating model fits classification well
 3. <span class="fragment highlight-red">Do these inferred prior beliefs reflect __talker variation__?</span>
 
 ----
@@ -561,7 +562,7 @@ ggplot() +
             aes(x=vot, y=lhood, group=paste(category, source), linetype=source)) + 
   scale_linetype_discrete('Source') +
   scale_x_continuous('VOT (ms)') +
-  scale_y_continuous('Likelihood') +
+  scale_y_continuous('Likelihood')
   ## geom_segment(x = -70, xend = -95, y = 0.02, yend = 0.005,
   ##              arrow = arrow(length = unit(0.03, 'npc'))) +
   ## geom_text(x = -68, y=0.02, label = '37% tokens were\nprevoiced',
@@ -570,10 +571,53 @@ ggplot() +
 
 ```
 
+## Questions
 
-----
+1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
+    * __Yes__: Less adaptation to extreme accents
+2. <span class="yes">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
+    * __Yes__: Belief updating model fits classification well
+3. <span class="yes">Do these inferred prior beliefs reflect __talker variation__?</span>
+    * __Yes__(-ish): Prevoicing potentially explains low expected /b/ VOT
 
-## Belief updating
+# Conclusion
+
+---
+
+## Distributional learning is __constrained__
+
+* Rapid adaptation can't be the whole story to coping with talker variation
+* Where do constraints come from?
+
+## The ideal adapter
+
+* Results are consistent with predictions of __ideal adapter__ framework
+* Efficient belief updating requires informative prior starting point
+* Experience with other talkers can provide this prior
+
+## There are other possible sources of constraints!
+
+* Psychoacoustics
+* Own production processes
+* etc.
+
+## Future directions
+
+* Ideal adapter predictions depend on __type__ and __amount__ of cross-talker variability.
+* (relatively) __weaker constraints__ for more variable contrasts (e.g., fricatives and vowels)
+* (relatively) __stronger constraints__ when listeners have more specific expectations (e.g., gender and dialect)
+
+## Mind reading
+
+* Probing listeners' subjective expectations is __hard__.
+* Adaptation + belief updating models provide a missing __tool__.
+* Bonus: doesn't require __production__ data.
+
+## Thanks!
+
+# Belief updating
+
+---
 
 ```{r fitted-parameter-updating}
 
@@ -615,7 +659,7 @@ updated_p_lhoods <-
 ```
 
 
-```{r lhood-fcn-update-animation, fig.show='animate'}
+```{r lhood-fcn-update-animation, fig.show='animate', out.width='50%'}
 
 ## likelihood curves
 ggplot(updated_p_lhoods,
@@ -628,7 +672,7 @@ gg_animate(p)
 
 ```
 
-```{r class-fcn-update-animation, fig.show='animate'}
+```{r class-fcn-update-animation, fig.show='animate', out.width='50%'}
 
 ## classification functions
 updated_p_lhoods %>%
