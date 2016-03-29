@@ -14,3 +14,12 @@
 .reveal li .asking {
     color: red;
 }
+
+.reveal .sidebyside p {
+    display: inline;
+}
+
+.reveal .cite {
+    font-size: 50%;
+    color: #aaaaaa;
+}

@@ -119,13 +119,40 @@ stats_to_lhood <- function(stats, noise_sd=sd_noise, xlim=c(-30, 90)) {
 
 # Introduction
 
+## Variability <br /><span class="fragment">is a __problem__ for speech perception</span>
+
 ---
 
+<div class="sidebyside">
+<img src="imgs/newman_dists.png" width=40%/>
 
+```{r newman-classification-curves, fig.width=4, fig.height=2.6, out.width="40%"}
 
-```{r newman-figs}
+x_range <- c(4600, 6200)
+
+newmans <- data_frame(Talker = c('GGG', 'IAF'),
+                      boundary = c(5750, 5200),
+                      slope = -c((5325-5167) / (0.5*(654^2+781^2)),
+                                (5414-5004) / (0.5*(684^2+982^2))))
+
+curves <- newmans %>% group_by(Talker) %>%
+  do(data_frame(x = seq(x_range[1], x_range[2]),
+                p = 1 / (1 + exp((x-.$boundary)*.$slope*32))))
+
+ggplot(curves, aes(x=x, y=p, color=Talker)) +
+  geom_line(size=2) +
+  scale_y_continuous('Probability of /s/') +
+  scale_x_continuous("Primary /s/-/sh/ cue\n(Frication frequency centroid, Hz)") +
+  geom_text(data = newmans,
+            aes(x=boundary, y=0.5, label = Talker),
+            hjust = 1, vjust = 0, nudge_x = -50) +
+  theme(legend.position='none')
+
 
 ```
+</div>
+
+<span class="cite">[Newman, Clouse, & Burnham, 2001]</span>
 
 <div class="notes">
 * This is a conference about variation
