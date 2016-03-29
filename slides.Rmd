@@ -290,6 +290,14 @@ data %>%
 * $n=`r data %$% subject %>% n_distinct()`$ subjects on Mechanical Turk
 * 222 trials (about 20 minutes)
 
+<div class="notes">
+* Differ only in how shifted they are: 
+* More or less similar to what a typical talker of american english produces
+* refer to them by the mean of /b/
+</div>
+
+
+
 ```{r prepare-class-fcns}
 
 lhood_to_classification <- function(lhood) {
@@ -334,6 +342,8 @@ boundary_summary <- boundaries %>%
 
 ```
 
+
+
 ## Prediction: no learning
 
 ```{r predict-no-learning, fig.width=8, fig.height=2, out.width="100%"}
@@ -356,6 +366,10 @@ print(learn_plot)
 
 ```
 
+<div class="notes">
+If listeners aren't learning anything at all, then their classification functions should be the __same__ regardless of condition. The best bet is that they'll look something like one optimized for a typical talker
+</div>
+
 ## Prediction: full learning
 
 ```{r predict-full-learning, fig.width=8, fig.height=2, out.width="100%"}
@@ -373,6 +387,11 @@ print(learn_plot)
 
 ```
 
+<div class="notes">
+On the other hand, if listeners are unconstrained in their adaptation, we predict they'll pick up on exactly the right category boundary for each of the accents we throw at them, which looks something like this
+
+So what do people actually do??
+</div>
 
 ## Results: classification
 
@@ -391,6 +410,11 @@ print(learn_plot)
 )
 
 ```
+
+<div class="notes">
+
+</div>
+
 
 ## Results: category boundaries
 
@@ -430,6 +454,13 @@ ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
        y = 'Category boundary (ms VOT)')
 
 ```
+
+<div class="notes">
+Things to notice:
+
+* __learning__: category boundaries are different for different input distributionss
+* __constraints__: listeners undershoot category boundaries for more extreme accents
+</div>
 
 ---
 
@@ -525,6 +556,12 @@ ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
 
 
 ```
+
+<div class="notes">
+* Lines are model fits
+* confidence intervals are 95% bootstrapped CIs on subject means.
+</div>
+
 
 ## Questions
 
