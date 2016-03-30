@@ -175,8 +175,6 @@ ggplot(curves, aes(x=x, y=p, color=Talker)) +
 * These differences can lead to comprehension problems if you try to apply the classification strategy that worked for one talker to another talker
 </div>
 
----
-
 ```{r particle-setup}
 
 
@@ -224,7 +222,7 @@ normalize <- function(x) x / sum(x)
 id_particle <- function(x, p) {
   
   # compute likelihood
-  sapply(x, function(xx) normalize(dnorm(xx, mean=p$mu, sd=p$sigma, log=FALSE) * p$theta)[1])
+  sapply(x, function(xx) normalize(dnorm(xx, mean=p$mu, sd=p$sigma, log=FALSE) * p$theta)[2])
 
 }
 #' Re-weight particles based on data
@@ -346,8 +344,6 @@ plot_particle_updating <- function(x, particles,
                                    x_to_plot_at = seq(-30, 120),
                                    true_particle = NA) {
 
-  times_to_plot <- seq(1, 200, by=20)
-
   weighted_particles <-
     weight_particles(x, particles, d_particle) %>%
     ungroup() %>% 
@@ -399,6 +395,56 @@ plot_particle_updating <- function(x, particles,
 
 }
 
+plot_particle_updating_id <- function(x, particles,
+                                      x_idx_to_plot_at = round(seq(1, length(x), length.out=11)),
+                                      x_to_plot_at = seq(-30, 120),
+                                      true_particle = NA) {
+  weighted_particles <-
+    weight_particles(x, particles, d_particle) %>%
+    ungroup() %>% 
+    filter(x_idx %in% x_idx_to_plot_at)
+
+  particle_ids <- particles %>%
+    particles_to_id_df(x = x_to_plot_at) %>%
+    full_join(weighted_particles, by='p_idx')
+    
+
+  particle_ids_marginal <- particle_ids %>%
+    group_by(x_id, x_idx) %>%
+    summarise(marginal_id = sum(weight * particle_id))
+
+  # for carpet plot of data points
+  xs_before_xidx <- data_frame(x_idx = x_idx_to_plot_at) %>%
+    group_by(x_idx) %>%
+    do({ data_frame(x = x[1:.$x_idx]) })
+  
+  particle_ids %>%
+    ggplot(aes(x=x_id, y=particle_id)) +
+    geom_line(aes(group=p_idx, color='Hypotheses', frame=x_idx, alpha=weight)) +
+    geom_line(data = particle_ids_marginal,
+              aes(y = marginal_id, color='Marginal', group=x_idx, frame=x_idx)) +
+    ## geom_point(data=xs_before_xidx, aes(x=x, y=0, alpha=1, frame=x_idx), shape='|') + 
+    labs(y = 'Probability of /p/') +
+    ## scale_alpha_continuous(range=c(0.00,1)) +
+    scale_alpha_identity() +
+    theme_particles() +
+    guides(alpha = FALSE) +
+    scale_color_manual(breaks = c('Hypotheses', 'Marginal', 'Truth'),
+                       values = c('black', 'red', 'blue'),
+                       guide = FALSE) ->
+    p
+
+  if (!missing(true_particle)) {
+    true_id <- data_frame(x_id = x_to_plot_at,
+                          id = id_particle(x=x_id, p=true_particle))
+    p <- p +
+      geom_line(data = true_id, aes(y = id, color='Truth'))
+  }
+
+  p
+}
+
+
 # draw samples from the data distribution of a particle
 sample_from_particle <- function(n, p) {
   K <- max(sapply(p, length))
@@ -423,46 +469,87 @@ true_particle <- list(mu = c(0, 60),
 
 ```
 
-```{r okay_samples, fig.width=4, fig.height=3, out.width="50%"}
+## An unfamiliar talker
 
-
+```{r okay_samples, fig.width=4, fig.height=3, out.width="49%", dependson='particle-setup'}
 
 ## Samples from an intermediate prior + classification fun samples
 okay_particles <- r_particle_prior(particle_population,
                                    mu0 = c(0, 60),
                                    mu_sigma = 10,
-                                   sigma0 = c(20, 20),
-                                   sigma_sigma = c(5, 5))
-
+                                   sigma0 = c(15, 25),
+                                   sigma_sigma = c(3, 5))
 
 okay_particles %>%
-  plot_particles_lhood(x_to_plot_at = x_to_plot_at) +
+  plot_particles_lhood(x_to_plot_at = x_to_plot_at## , 
+                       ## true_particle = true_particle
+                       ) +
   labs(y = '', x = 'VOT (ms)') +
-  ylim(c(NA, 0.07))
+  ylim(c(NA, 0.03)) +
+  ggtitle('Uncertainty about distributions')
+
+```
+<span class="fragment">
+```{r okay_samples_id, fig.width=4, fig.height=3, out.width="49%", dependson='particle-setup'}
+
 
 okay_particles %>%
   plot_particles_id(x_to_plot_at = x_to_plot_at) +
-  labs(y = 'Probability of /p/', x = 'VOT (ms)')
+  labs(y = 'Probability of /p/', x = 'VOT (ms)') +
+  ggtitle('Uncertainty about classification')
+
 
 ```
+</span>
 
 <div class="notes">
 * Talker variability means that when you first meet an unfamiliar talker, you don't know what their cue distributions look like.
 * This leads directly to uncertainty about how to classify their speech
 </div>
 
----
+## Rapid adaptation
 
 <div class="notes">
 * Listeners rapidly adapt to unfamiliar talker
 * In __ideal adapter__ framework, we can think of it as a __distributional learning__ process: infer talker's distributions by updating beliefs, based on observations
 </div>
 
-```{r }
+```{r okay_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
 
 ## belief updating animation
+x <- sample_from_particle(30, true_particle)
+t_to_plot_at <- 1:30
+
+okay_updating <- okay_particles %>%
+  plot_particle_updating(x = x,
+                         x_idx_to_plot_at = t_to_plot_at,
+                         x_to_plot_at = x_to_plot_at,
+                         true_particle = true_particle) +
+  labs(y = '', x = 'VOT (ms)') +
+  ylim(c(NA, 0.03))
+
+
+gg_animate(okay_updating)
 
 ```
+```{r okay_updating_id, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
+
+
+## belief updating animation
+x <- sample_from_particle(30, true_particle)
+t_to_plot_at <- 1:30
+
+okay_updating_id <- okay_particles %>%
+  plot_particle_updating_id(x = x,
+                            x_idx_to_plot_at = t_to_plot_at,
+                            x_to_plot_at = x_to_plot_at,
+                            true_particle = true_particle) +
+  labs(x = 'VOT (ms)')
+
+gg_animate(okay_updating_id)
+
+```
+
 
 ---
 
