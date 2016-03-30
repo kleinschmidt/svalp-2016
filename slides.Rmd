@@ -285,7 +285,7 @@ plot_particles_lhood <- function(particles, x_to_plot_at, true_particle = NA) {
   particle_pdfs %>%
     ggplot() +
     geom_line(aes(x=x_pdf, y=particle_lhood, group=p_idx,
-                  color='Hypotheses'), alpha=0.1) +
+                  color='Hypotheses'), alpha=0.05) +
     geom_line(data=particle_pdfs_marginal,
               aes(x=x_pdf, y=marginal_lhood, color='Marginal')) +
     guides(alpha = FALSE) +
@@ -318,7 +318,7 @@ plot_particles_id <- function(particles, x_to_plot_at, true_particle = NA) {
   
   particle_ids %>%
     ggplot(aes(x=x_id, y=particle_id)) +
-    geom_line(alpha=0.1,
+    geom_line(alpha=0.05,
               aes(group=p_idx, color='Hypotheses')) +
     geom_line(data = particle_ids_marginal,
               aes(y = marginal_id, color='Marginal')) +
@@ -550,14 +550,85 @@ gg_animate(okay_updating_id)
 
 ```
 
+## Two dangers
 
----
+```{r flat_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
 
-```{r }
+flat_particles <- r_particle_prior(particle_population,
+                                   mu0 = c(0, 60),
+                                   mu_sigma = 30,
+                                   sigma0 = c(20, 20),
+                                   sigma_sigma = c(5, 5))
 
-## belief updating animation for FLAT prior and MISINFORMED
+
+
+flat_updating <- flat_particles %>%
+  plot_particle_updating(x = x,
+                         x_idx_to_plot_at = t_to_plot_at,
+                         x_to_plot_at = x_to_plot_at,
+                         true_particle = true_particle) +
+  labs(y = '', x = 'VOT (ms)') +
+  ylim(c(NA, 0.03)) +
+  ggtitle('Too broad')
+
+
+gg_animate(flat_updating)
 
 ```
+```{r flat_updating_id, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
+
+
+## belief updating animation
+x <- sample_from_particle(30, true_particle)
+t_to_plot_at <- 1:30
+
+flat_updating_id <- flat_particles %>%
+  plot_particle_updating_id(x = x,
+                            x_idx_to_plot_at = t_to_plot_at,
+                            x_to_plot_at = x_to_plot_at,
+                            true_particle = true_particle) +
+  labs(x = 'VOT (ms)')
+
+gg_animate(flat_updating_id)
+
+```
+<span class="fragment">
+```{r mis_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
+
+mis_particles <- r_particle_prior(particle_population,
+                                  mu0 = c(15, 70),
+                                  mu_sigma = 5,
+                                  sigma0 = c(10, 22),
+                                  sigma_sigma = c(5, 5))
+
+
+
+mis_updating <- mis_particles %>%
+  plot_particle_updating(x = x,
+                         x_idx_to_plot_at = t_to_plot_at,
+                         x_to_plot_at = x_to_plot_at,
+                         true_particle = true_particle) +
+  labs(y = '', x = 'VOT (ms)') +
+  ylim(c(NA, 0.03)) +
+  ggtitle('Specific but wrong')
+
+
+gg_animate(mis_updating)
+
+```
+```{r mis_updating_id, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
+
+mis_updating_id <- mis_particles %>%
+  plot_particle_updating_id(x = x,
+                            x_idx_to_plot_at = t_to_plot_at,
+                            x_to_plot_at = x_to_plot_at,
+                            true_particle = true_particle) +
+  labs(x = 'VOT (ms)')
+
+gg_animate(mis_updating_id)
+
+```
+</span>
 
 <div class="notes">
 * Highlights a commonly overlooked aspect: where does belief updating __start__?
