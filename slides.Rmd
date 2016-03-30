@@ -53,8 +53,22 @@ opts_knit$set(animation.fun = function(x, options, format = "gif") {
   figs <- figs[order(as.numeric(stringr::str_match(figs, paste0("(\\d+)\\.", x[2]))[, 2]))]
 
   animation::im.convert(figs, output = mov.fname)
-  
-  sprintf("![%s](%s)", options$label, paste0(opts_knit$get("base.url"), mov.fname))
+
+  if (is.null(options$out.width) && is.null(options$out.height)) {
+    sprintf("![%s](%s)", options$label, paste0(opts_knit$get("base.url"), mov.fname))
+  } else {
+    extra_options <- paste(ifelse(is.null(options$out.height),
+                                          '',
+                                          sprintf('height="%s"', options$out.height)),
+                           ifelse(is.null(options$out.width),
+                                          '',
+                                          sprintf('width="%s"', options$out.width)))
+    sprintf('<img src="%s" alt="%s" %s />',
+            paste0(opts_knit$get("base.url"), mov.fname),
+            options$label,
+            extra_options)
+  }
+
 })
 
 ## force png and fig.retina=1 for fig.show='animate'
