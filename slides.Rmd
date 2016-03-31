@@ -36,6 +36,12 @@ library(gganimate)
 library(animation)
 ani.options(autobrowse = FALSE, interval = .2)
 
+## colors!!
+h_offset <- -15
+scale_color_discrete <- function(...) scale_color_hue(..., h = c(0, 360) + h_offset)
+scale_fill_discrete <- function(...) scale_fill_hue(..., h = c(0, 360) + h_offset)
+
+
 ## FRom the gganimate github readme: a hacked-together gif animation hook:
 ## https://github.com/dgrtwo/gganimate/blob/master/README.Rmd
 
@@ -710,7 +716,7 @@ one_sub <- data %>%
 
 ```
 
-```{r exposure-build-up, fig.show='animate', fig.width=6.5, fig.height=4.5, dependson='one-sub'}
+```{r exposure-build-up, fig.show='animate', fig.width=6.5, fig.height=4.5, dependson='one-sub', out.height = '60%'}
 
 ## Show exposure building up...
 
@@ -847,7 +853,7 @@ data %>%
             color='black', hjust=0, vjust=0.3, size=3) +
   geom_text(data=data.frame(bvotCond=-10), x = 40, y = 50,
             label = 'Exposure\nTalker',
-            color=hcl(h=15, c=100, l=65), hjust=0, vjust=0.8, size=3,
+            color=hcl(h=h_offset, c=100, l=65), hjust=0, vjust=0.8, size=3,
             lineheight=1) + 
   facet_grid(.~bvotCond) +
   scale_x_continuous('VOT (ms)') +
@@ -952,8 +958,9 @@ If listeners aren't learning anything at all, then their classification function
     geom_line(data=perfect_learning, aes(y=prob_p), group=1, linetype=2, size=1) +
     geom_text(data=data.frame(bvotCond=-10),
               x = 12, y = 1, label = 'Talker-\nspecific',
-              size = 3.5, hjust=1, vjust=1, color=hcl(15, c=100, l=65),
-              lineheight=1, fontface='bold')
+              size = 3.5, hjust=1, vjust=1, color=hcl(h_offset, c=100, l=65),
+              lineheight=1, fontface='bold') + 
+    scale_color_discrete('/b/ mean\nVOT')
 )
 
 ```
@@ -976,7 +983,7 @@ So what do people actually do??
               alpha=0.2) +
     geom_text(data=data.frame(bvotCond=-10),
               x = 90, y = 0.75, label = 'Listeners\'\nresponse',
-              size = 3.5, hjust=1, vjust=1, color=hcl(15, c=100, l=65),
+              size = 3.5, hjust=1, vjust=1, color=hcl(h_offset, c=100, l=65),
               lineheight=1)
 )
 
@@ -1030,7 +1037,8 @@ ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
   geom_pointrange(stat='summary', fun.data='mean_cl_boot', color='white') +
   theme(legend.position='none') +
   labs(x = 'Condition (Mean /b/ VOT)',
-       y = 'Category boundary (ms VOT)')
+       y = 'Category boundary (ms VOT)') +
+  scale_color_discrete()
 
 ```
 
@@ -1308,7 +1316,7 @@ updated_p_lhoods <-
 ```
 
 
-```{r lhood-fcn-update-animation, fig.show='animate', out.width='50%'}
+```{r lhood-fcn-update-animation, fig.show='animate', out.width='49%'}
 
 ## likelihood curves
 ggplot(updated_p_lhoods,
@@ -1320,8 +1328,7 @@ ggplot(updated_p_lhoods,
 gg_animate(p)
 
 ```
-
-```{r class-fcn-update-animation, fig.show='animate', out.width='50%'}
+```{r class-fcn-update-animation, fig.show='animate', out.width='49%'}
 
 ## classification functions
 updated_p_lhoods %>%
