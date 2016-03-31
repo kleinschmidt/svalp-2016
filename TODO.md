@@ -14,6 +14,9 @@
     * write intro slides
         * (with placeholders for any fancy intro animations)
     * [done] writ conclusion slides
+    * [done] convert modeling into prose-y-r versions:
+        * somethign like "given prior beliefs and inpu, __predict__ adaptation"
+        * vs. "given adaptation and input, __infer__ prior beliefs"
 * get presentation down
     * speaker notes
     * run through
