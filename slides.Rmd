@@ -550,16 +550,53 @@ gg_animate(okay_updating_id)
 
 ```
 
+<span class="cite">[Kleinschmidt & Jaeger, 2015]</span>
+
+
 ## Two dangers
 
-```{r flat_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
-
+```{r flat_particles, fig.width=4, fig.height=3, out.width="49%"}
 flat_particles <- r_particle_prior(particle_population,
                                    mu0 = c(0, 60),
                                    mu_sigma = 30,
                                    sigma0 = c(20, 20),
                                    sigma_sigma = c(5, 5))
+flat_particles %>%
+  plot_particles_lhood(x_to_plot_at = x_to_plot_at, 
+                       true_particle = true_particle
+                       ) +
+  labs(y = '', x = 'VOT (ms)') +
+  ylim(c(NA, 0.03)) +
+  ggtitle('Too much uncertainty')
 
+```
+<span class="fragment">
+```{r mis_particles, fig.width=4, fig.height=3, out.width="49%"}
+mis_particles <- r_particle_prior(particle_population,
+                                  mu0 = c(15, 70),
+                                  mu_sigma = 5,
+                                  sigma0 = c(10, 22),
+                                  sigma_sigma = c(5, 5))
+mis_particles %>%
+  plot_particles_lhood(x_to_plot_at = x_to_plot_at, 
+                       true_particle = true_particle
+                       ) +
+  labs(y = '', x = 'VOT (ms)') +
+  ylim(c(NA, 0.03)) +
+  ggtitle('Overconfident and wrong')
+
+```
+</span>
+
+<div class="notes">
+* Highlights a commonly overlooked aspect: where does belief updating __start__?
+* There's a tradeoff between being __flexible__ enough to handle variation, but not so __flexible__ that you basically end up re-learning the language
+</div>
+
+
+## Too much uncertainty
+
+```{r flat_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
 
 
 flat_updating <- flat_particles %>%
@@ -628,12 +665,8 @@ mis_updating_id <- mis_particles %>%
 gg_animate(mis_updating_id)
 
 ```
-</span>
 
 <div class="notes">
-* Highlights a commonly overlooked aspect: where does belief updating __start__?
-* There's a tradeoff between being __flexible__ enough to handle variation, but not so __flexible__ that you basically end up re-learning the language
-* If you start off considering __all possible__ distributions, it's going to take a lot more evidence to converge on accurate beliefs
 * On the other hand, if you're too confident and you end up being wrong, it __also__ takes a ton of evidence to overcome your prior beliefs
 * The thing you need to do, more or less, is match your prior expectations to your prior experience with __distribution of talkers in the world__
 * (( applies both at the level of the whole language/all talkers, and for more specific groups when those are informative ))
