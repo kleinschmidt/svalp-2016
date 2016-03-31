@@ -153,8 +153,8 @@ curves <- newmans %>% group_by(Talker) %>%
 
 ggplot(curves, aes(x=x, y=p, color=Talker)) +
   geom_line(size=2) +
-  scale_y_continuous('Probability of /s/') +
-  scale_x_continuous("Primary /s/-/sh/ cue\n(Frication frequency centroid, Hz)") +
+  labs(x = 'Probability of /s/',
+       y = "Primary /s/-/sh/ cue\n(Frication frequency centroid, Hz)") + 
   geom_text(data = newmans,
             aes(x=boundary, y=0.5, label = Talker),
             hjust = 1, vjust = 0, nudge_x = -50) +
@@ -976,7 +976,9 @@ So what do people actually do??
 ```{r boundary-violin-plots, fig.width=6.5, fig.height=4.5}
 
 ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
-  geom_violin(color='white',draw_quantiles=c(0.25, 0.5, 0.75), show.legend=FALSE) +
+  ## this is an awful hack: plot the violins first to force continuous x
+  geom_violin(color='white',draw_quantiles=c(0.25, 0.5, 0.75), show.legend=FALSE,
+              alpha = 0) +
   geom_segment(data = boundaries %>%    # prior boundary
                  summarise(xmin = min(as.numeric(bvotCond))-0.5,
                            xmax = max(as.numeric(bvotCond))+0.5,
@@ -990,7 +992,10 @@ ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
                    color=bvotCond),
                linetype = 2, size = 1,
                data = boundaries %>% group_by(bvotCond, ideal_boundary) %>% summarise()) +
-  geom_violin(color='white',draw_quantiles=c(0.25, 0.5, 0.75), show.legend=FALSE) +
+  geom_violin(color='white',
+              ## draw_quantiles=c(0.25, 0.5, 0.75),
+              alpha = 0.5,
+              show.legend=FALSE) +
   coord_flip() +
   geom_text(data=(boundaries %>% filter(bvotCond==20) %>% head(n=1)),
             aes(y=ideal_boundary, color=bvotCond),
@@ -1004,6 +1009,7 @@ ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
             label='Typical talker\'s \nboundary',
             hjust = 1, vjust = 0,
             nudge_x = -0.5, nudge_y = -1) +
+  geom_pointrange(stat='summary', fun.data='mean_cl_boot', color='white') +
   theme(legend.position='none') +
   labs(x = 'Condition (Mean /b/ VOT)',
        y = 'Category boundary (ms VOT)')
@@ -1035,6 +1041,10 @@ Things to notice:
 
 ## Now: given __adaptation__ (change in classification) to different __exposure distributions__, infer __prior beliefs__.
 
+<div class="notes">
+* Advantage of a Bayesian framework! 
+* We can take this model and turn it around.
+<div>
 
 ---
 
@@ -1154,17 +1164,25 @@ all_priors <- prior_lhood %>%
                          levels = c("Inferred prior",
                                     "Kronrod et al. (2012)",
                                     "Goldrick et al. (2013)")))
-  
 
-all_priors %>%
+prior_p <- all_priors %>%
   filter(as.numeric(source) < 3) %>%
-  ggplot(aes(x=vot, y=lhood, group=paste(category, source), linetype=source)) +
+  ggplot(aes(x=vot, y=lhood, group=paste(category, source), color=source,
+             linetype = category)) +
   ## geom_line(aes(linetype='Inferred prior')) +
   ## geom_line(data=prior_lhood, aes(linetype='Kronrod et al. (2012)')) +
-  geom_line() + 
-  scale_linetype_discrete('Source') +
-  scale_x_continuous('VOT (ms)') +
-  scale_y_continuous('Likelihood') 
+  geom_line(size=2, alpha=0.5) +
+  labs(color = 'Source',
+       linetype = 'Category',
+       x = 'VOT (ms)',
+       y = 'Likelihood') + 
+  scale_color_manual(values = hcl(h = c(0, 0, 240) + h_offset,
+                                  c = c(0, 100, 100),
+                                  l = 65),
+                     drop = FALSE)
+
+print(prior_p)
+
 
 ```
 
@@ -1172,18 +1190,10 @@ all_priors %>%
 
 ```{r inferred-prior-vs-goldrick, fig.width=10, fig.height=3.5, out.width='100%'}
 
-ggplot() +
-  ## geom_line(aes(linetype='Inferred prior')) +
-  ## geom_line(data=prior_lhood, aes(linetype='Kronrod et al. (2012)')) +
-  geom_line(data =all_priors,
-            aes(x=vot, y=lhood, group=paste(category, source), linetype=source)) + 
-  scale_linetype_discrete('Source') +
-  scale_x_continuous('VOT (ms)') +
-  scale_y_continuous('Likelihood')
-  ## geom_segment(x = -70, xend = -95, y = 0.02, yend = 0.005,
-  ##              arrow = arrow(length = unit(0.03, 'npc'))) +
-  ## geom_text(x = -68, y=0.02, label = '37% tokens were\nprevoiced',
-  ##           hjust = 0)
+prior_p +
+  geom_line(size = 2, alpha=0.5,
+            data = all_priors %>% filter(as.numeric(source) == 3))
+
 
 
 ```
