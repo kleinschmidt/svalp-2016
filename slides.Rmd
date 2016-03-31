@@ -555,7 +555,7 @@ gg_animate(okay_updating_id)
 <span class="cite">[Kleinschmidt & Jaeger, 2015]</span>
 
 
-## Two dangers
+## Scylla and Charybdis
 
 Distributional learning needs to __start__ somewhere  
 (__prior beliefs__ in Bayesian jargon)
@@ -671,6 +671,10 @@ gg_animate(mis_updating_id)
 </div>
 
 ---
+
+The ideal adapter predicts that listeners should be __as specific as possible__ in their expectations about an unfamiliar talker:
+
+Expectations should match actual variability across talkers in the real world.
 
 <div class="notes">
 * At the highest level: part of what makes an ideal adapter "ideal" is that sometimes it __won't__ rapidly adapt.
