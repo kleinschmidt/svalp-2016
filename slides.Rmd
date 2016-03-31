@@ -934,7 +934,7 @@ If listeners aren't learning anything at all, then their classification function
     learn_plot +
     geom_line(data=perfect_learning, aes(y=prob_p), group=1, linetype=2, size=1) +
     geom_text(data=data.frame(bvotCond=-10),
-              x = 12, y = 1, label = 'Expo-\nsure',
+              x = 12, y = 1, label = 'Talker-\nspecific',
               size = 3.5, hjust=1, vjust=1, color=hcl(15, c=100, l=65),
               lineheight=1, fontface='bold')
 )
@@ -959,7 +959,7 @@ So what do people actually do??
               method='glm', method.args=list(family='binomial'),
               alpha=0.2) +
     geom_text(data=data.frame(bvotCond=-10),
-              x = 90, y = 0.75, label = 'Actual\nlisteners',
+              x = 90, y = 0.75, label = 'Listeners\'\nresponse',
               size = 3.5, hjust=1, vjust=1, color=hcl(15, c=100, l=65),
               lineheight=1)
 )
@@ -995,7 +995,7 @@ ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
   geom_text(data=(boundaries %>% filter(bvotCond==20) %>% head(n=1)),
             aes(y=ideal_boundary, color=bvotCond),
             ## x=3.5, y=41, 
-            label='Intended boundary',
+            label='Actual talker-\nspecific boundary',
             hjust = 0, vjust = 0,
             nudge_x = -0.5, nudge_y = 1) +
   geom_text(data=(boundaries %>% filter(bvotCond==20) %>% head(n=1)),
