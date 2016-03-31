@@ -1028,19 +1028,13 @@ Things to notice:
 
 # Modeling
 
-## Previous belief updating model
+## Previously: given __exposure distributions__ and __prior beliefs__, predict __adaptation__ (change in classification)
 
-> * Phonetic categories are distributions of cues with unknown mean and variance
-> * Assume a __known__ set of prior beliefs
-> * Update beliefs with exposure to unfamiliar talker
-> * Changes in beliefs predict changes in classification/category boundary
+<span class="cite">[Kleinschmidt & Jaeger, 2015]</span>
 
-## Inferring prior beliefs
 
-> * Treat prior beliefs as __unknown__
-> * Infer set of prior beliefs that best explains adaptation to different accents:
->     * Prior __expected__ mean and variance
->     * __Confidence__ in prior beliefs
+## Now: given __adaptation__ (change in classification) to different __exposure distributions__, infer __prior beliefs__.
+
 
 ---
 
