@@ -131,9 +131,7 @@ stats_to_lhood <- function(stats, noise_sd=sd_noise, xlim=c(-30, 90)) {
 
 ```
 
-# Introduction
-
-## Variability <br /><span class="fragment">is a __problem__ for speech perception</span>
+# Variability <br /><span class="fragment">is a __problem__ for speech perception</span>
 
 ---
 
