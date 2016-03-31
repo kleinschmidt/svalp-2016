@@ -557,6 +557,10 @@ gg_animate(okay_updating_id)
 
 ## Two dangers
 
+Distributional learning needs to __start__ somewhere  
+(__prior beliefs__ in Bayesian jargon)
+
+<span class="fragment">
 ```{r flat_particles, fig.width=4, fig.height=3, out.width="49%"}
 flat_particles <- r_particle_prior(particle_population,
                                    mu0 = c(0, 60),
@@ -572,6 +576,7 @@ flat_particles %>%
   ggtitle('Too much uncertainty')
 
 ```
+</span>
 <span class="fragment">
 ```{r mis_particles, fig.width=4, fig.height=3, out.width="49%"}
 mis_particles <- r_particle_prior(particle_population,
@@ -753,7 +758,8 @@ one_sub %>%
 
 ## Distributional learning
 
-```{r dist-learning-schematic, fig.width=3, fig.height=3, out.width="33%", dependson='one-sub'}
+<span class="fragment">
+```{r dist-learning-schematic, fig.width=3, fig.height=2.5, out.width="32%", dependson='one-sub'}
 
 one_sub %>%
   ggplot(aes(x=factor(vot), fill=bvotCond)) +
@@ -768,6 +774,10 @@ lhood_to_classification <- function(lhood) {
     spread(category, lhood) %>%
     mutate(prob_p = p / (p+b))
 }
+```
+</span>
+<span class="fragment">
+```{r fig.width=3, fig.height=2.5, out.width="32%", dependson='dist-learning-schematic'}
 
 exposure_stats %>%
   semi_join(one_sub) %>%
@@ -786,6 +796,11 @@ exposure_stats %>%
 
 print(p)
 
+
+```
+</span>
+<span class="fragment">
+```{r fig.width=3, fig.height=2.5, out.width="32%", dependson='dist-learning-schematic'}
 p <- p +
   geom_point(data=one_sub,
              aes(x=vot, y=respP),
@@ -803,14 +818,11 @@ p <- p +
 print(p)
 
 ```
+</span>
 
 ## Design
 
 ```{r distributions, fig.width=8, fig.height=2, out.width='100%'}
-
-## prior_stats <- data.frame(category=factor(c('b', 'p')),
-##                           mean = c(0, 60),
-##                           sd = sqrt(c(14, 254)))
 
 exposure_lhood <- exposure_stats %>%
   group_by(bvotCond) %>%
@@ -860,6 +872,7 @@ lhood_to_classification <- function(lhood) {
     spread(category, lhood) %>%
     mutate(prob_p = p / (p+b))
 }
+
 
 perfect_learning <- exposure_stats %>%
   group_by(bvotCond) %>%
@@ -938,7 +951,6 @@ If listeners aren't learning anything at all, then their classification function
               size = 3.5, hjust=1, vjust=1, color=hcl(15, c=100, l=65),
               lineheight=1, fontface='bold')
 )
-  
 
 ```
 
@@ -964,6 +976,7 @@ So what do people actually do??
               lineheight=1)
 )
 
+
 ```
 
 <div class="notes">
@@ -974,6 +987,7 @@ So what do people actually do??
 ## Results: category boundaries
 
 ```{r boundary-violin-plots, fig.width=6.5, fig.height=4.5}
+
 
 ggplot(boundaries, aes(y = boundary, x = bvotCond, fill = bvotCond)) +
   ## this is an awful hack: plot the violins first to force continuous x
@@ -1034,17 +1048,21 @@ Things to notice:
 
 # Modeling
 
-## Previously: given __exposure distributions__ and __prior beliefs__, predict __adaptation__ (change in classification)
+<!-- ## Belief updating -->
+---
+
+Previously: given __exposure distributions__ and __prior beliefs__, predict __adaptation__ (change in classification)
+
+<span class="fragment">
+Now: given __adaptation__ (change in classification) to different __exposure distributions__, infer __prior beliefs__.
+</span>
 
 <span class="cite">[Kleinschmidt & Jaeger, 2015]</span>
-
-
-## Now: given __adaptation__ (change in classification) to different __exposure distributions__, infer __prior beliefs__.
 
 <div class="notes">
 * Advantage of a Bayesian framework! 
 * We can take this model and turn it around.
-<div>
+</div>
 
 ---
 
