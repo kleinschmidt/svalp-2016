@@ -507,12 +507,16 @@ okay_particles %>%
 * This leads directly to uncertainty about how to classify their speech
 </div>
 
-## Rapid adaptation
+<!-- ## Rapid adaptation -->
+
+---
 
 <div class="notes">
 * Listeners rapidly adapt to unfamiliar talker
 * In __ideal adapter__ framework, we can think of it as a __distributional learning__ process: infer talker's distributions by updating beliefs, based on observations
 </div>
+
+An __ideal adpater__ rapidly adapts to an unfamiliar talker via __distributional learning__
 
 ```{r okay_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
 
@@ -605,19 +609,13 @@ flat_updating <- flat_particles %>%
                          x_to_plot_at = x_to_plot_at,
                          true_particle = true_particle) +
   labs(y = '', x = 'VOT (ms)') +
-  ylim(c(NA, 0.03)) +
-  ggtitle('Too broad')
+  ylim(c(NA, 0.03))
 
 
 gg_animate(flat_updating)
 
 ```
 ```{r flat_updating_id, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
-
-
-## belief updating animation
-x <- sample_from_particle(30, true_particle)
-t_to_plot_at <- 1:30
 
 flat_updating_id <- flat_particles %>%
   plot_particle_updating_id(x = x,
@@ -629,15 +627,14 @@ flat_updating_id <- flat_particles %>%
 gg_animate(flat_updating_id)
 
 ```
-<span class="fragment">
+<div class="notes">
+* If you start off considering __all possible__ distributions, it's going to take a lot more evidence to converge on accurate beliefs
+</div>
+
+
+## Overconfident and wrong
+
 ```{r mis_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
-
-mis_particles <- r_particle_prior(particle_population,
-                                  mu0 = c(15, 70),
-                                  mu_sigma = 5,
-                                  sigma0 = c(10, 22),
-                                  sigma_sigma = c(5, 5))
-
 
 
 mis_updating <- mis_particles %>%
@@ -646,9 +643,7 @@ mis_updating <- mis_particles %>%
                          x_to_plot_at = x_to_plot_at,
                          true_particle = true_particle) +
   labs(y = '', x = 'VOT (ms)') +
-  ylim(c(NA, 0.03)) +
-  ggtitle('Specific but wrong')
-
+  ylim(c(NA, 0.03))
 
 gg_animate(mis_updating)
 
