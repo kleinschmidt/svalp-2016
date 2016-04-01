@@ -123,7 +123,7 @@ $endfor$
     <div class="slides">
 
 $if(title)$
-<section>
+<section class="title">
     <h1 class="title">$title$</h1>
 $if(subtitle)$
   <h1 class="subtitle">$subtitle$</h1>
@@ -131,6 +131,15 @@ $endif$
 $for(author)$
     <h2 class="author">$author$</h2>
 $endfor$
+$if(affiliation)$
+    <h3 class="affiliation">$affiliation$</h3>
+$endif$
+$if(link)$
+    <h4 class="links">
+      $for(link)$$link$$sep$ // 
+$endfor$
+    </h4>
+$endif$
 $if(date)$
     <h3 class="date">$date$</h3>
 $endif$

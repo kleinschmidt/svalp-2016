@@ -1,6 +1,10 @@
 ---
 author: "Dave F. Kleinschmidt and T. Florian Jaeger"
+affiliation: "University of Rochester"
 title: "What do you expect from an unfamiliar talker?"
+link:
+  - "[&#64;kleinschmidt](http://twitter.com/kleinschmidt/)"
+  - "[davekleinschmidt.com](http://davekleinschmidt.com/)"
 output: 
   revealjs::revealjs_presentation:
     template: slides_template.html
