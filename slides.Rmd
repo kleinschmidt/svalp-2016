@@ -21,6 +21,16 @@ output:
 ---
 
 
+## Thanks
+
+* People:
+    * Florian Jaeger
+    * Andrew Watts (MTurk wizardry)
+    * HLP Lab
+* Funding
+    * NIH NICHD R01 to TFJ and NRSA to DFK
+
+
 ```{r preamble, message = FALSE, warning = FALSE, error = FALSE, results='hide', echo=FALSE}
 
 library(knitr)
@@ -46,7 +56,11 @@ scale_color_discrete <- function(...) scale_color_hue(..., h = c(0, 360) + h_off
 scale_fill_discrete <- function(...) scale_fill_hue(..., h = c(0, 360) + h_offset)
 
 red <- hcl(h = 0 + h_offset, c = 100, l = 65)
+red_bright <- hcl(h = 0 + h_offset, c = 100, l = 80)
+
 blue <- hcl(h = 240 + h_offset, c = 100, l = 65)
+
+green <- hcl(h = 120 + h_offset, c = 100, l = 65)
 
 ## FRom the gganimate github readme: a hacked-together gif animation hook:
 ## https://github.com/dgrtwo/gganimate/blob/master/README.Rmd
@@ -143,7 +157,7 @@ stats_to_lhood <- function(stats, noise_sd=sd_noise, xlim=c(-30, 90)) {
 
 ```
 
-# Variability <br /><span class="fragment">is a __problem__ for speech perception</span>
+# Variation <br /><span class="fragment">is a __problem__ for speech perception</span>
 
 <div class="notes">
 * This is a conference about variation
@@ -526,13 +540,18 @@ okay_particles %>%
 ---
 
 <div class="notes">
-* Listeners rapidly adapt to unfamiliar talker
+* Ideal adapter framework formulates this as statistical inference 
+</div>
+
+Listeners have to simultaneously infer __what__ the talker is saying and __how__ they say things
+
+---
+
+<div class="notes">
 * In __ideal adapter__ framework, we can think of it as a __distributional learning__ process: infer talker's distributions by updating beliefs, based on observations
 </div>
 
 An __ideal adpater__ rapidly adapts to an unfamiliar talker via __distributional learning__
-
-Simultaneously infer __what__ the talker is saying and __how__ they say things
 
 ```{r okay_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
 
@@ -686,7 +705,7 @@ gg_animate(mis_updating_id)
 
 ---
 
-## Ideal adapter predictions
+## Ideal adapter predicts:
 
 > * Listeners' expectations about an unfamiliar talkers should be __as specific as possible__
 > * Adaptation is constrained by __actual variability__ across talkers in the real world.
@@ -1149,7 +1168,6 @@ mod_class_funs <- mod_samples %>%
   mutate(prob_p = lapse_rate/2 + (1-lapse_rate) * prob_p)
 
 ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
-  geom_line() +
   geom_linerange(data=data_by_subject,
                  stat='summary', fun.data='mean_cl_boot') +
   geom_point(data=data_by_subject,
@@ -1162,11 +1180,29 @@ ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
 
 
 ```
-
 <div class="notes">
 * Lines are model fits
 * confidence intervals are 95% bootstrapped CIs on subject means.
 </div>
+
+## Model vs. data: classification
+
+<img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" />
+
+```{r model-vs-class-data-full, fig.width=8, fig.height=2, out.width='100%'}
+ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
+  geom_line() +
+  geom_linerange(data=data_by_subject,
+                 stat='summary', fun.data='mean_cl_boot') +
+  geom_point(data=data_by_subject,
+             stat='summary', fun.y='mean') +
+  facet_grid(.~bvotCond) +
+  scale_x_continuous('VOT (ms)') +
+  scale_y_continuous('Probability /p/ response') + 
+  scale_color_discrete('/b/ mean\nVOT', guide = FALSE)
+
+```
+
 
 
 ## Questions
@@ -1294,7 +1330,11 @@ prior_p +
 * Adaptation + belief updating models provide a missing __tool__.
 * Doesn't require __production__ data.
 
-## Thanks!
+## Findings
+
+> 1. Rapid adaptation via distributional learning is __constrained__
+> 2. Proof of concept: recover listeners __prior beliefs__ about unfamiliar talkers
+> 3. Provides a new tool that links (sociolinguistic) variation in __production__ with listeners' __perception__ expectations
 
 # Extra slides
 
