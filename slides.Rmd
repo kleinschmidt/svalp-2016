@@ -41,6 +41,8 @@ h_offset <- -15
 scale_color_discrete <- function(...) scale_color_hue(..., h = c(0, 360) + h_offset)
 scale_fill_discrete <- function(...) scale_fill_hue(..., h = c(0, 360) + h_offset)
 
+red <- hcl(h = 0 + h_offset, c = 100, l = 65)
+blue <- hcl(h = 240 + h_offset, c = 100, l = 65)
 
 ## FRom the gganimate github readme: a hacked-together gif animation hook:
 ## https://github.com/dgrtwo/gganimate/blob/master/README.Rmd
@@ -139,6 +141,11 @@ stats_to_lhood <- function(stats, noise_sd=sd_noise, xlim=c(-30, 90)) {
 
 # Variability <br /><span class="fragment">is a __problem__ for speech perception</span>
 
+<div class="notes">
+* This is a conference about variation
+* I'm going to talk about it from the point of view of speech __perception__, where it's typically thought of as a __problem__.
+</div>
+
 ---
 
 <div class="sidebyside">
@@ -159,12 +166,13 @@ curves <- newmans %>% group_by(Talker) %>%
 
 ggplot(curves, aes(x=x, y=p, color=Talker)) +
   geom_line(size=2) +
-  labs(x = 'Probability of /s/',
-       y = "Primary /s/-/sh/ cue\n(Frication frequency centroid, Hz)") + 
+  labs(y = 'Probability of /s/',
+       x = "Primary /s/-/sh/ cue\n(Frication frequency centroid, Hz)") + 
   geom_text(data = newmans,
             aes(x=boundary, y=0.5, label = Talker),
             hjust = 1, vjust = 0, nudge_x = -50) +
-  theme(legend.position='none')
+  theme(legend.position='none') +
+  scale_color_discrete()
 
 
 ```
@@ -173,8 +181,6 @@ ggplot(curves, aes(x=x, y=p, color=Talker)) +
 <span class="cite">[Newman, Clouse, & Burnham, 2001]</span>
 
 <div class="notes">
-* This is a conference about variation
-* I'm going to talk about it from the point of view of speech __perception__, where it's typically thought of as a __problem__.
 * The problem is this: talkers differ in the distributions of acoustic cues they produce for each underlying linguistic category.
 * These differences can lead to comprehension problems if you try to apply the classification strategy that worked for one talker to another talker
 </div>
@@ -296,7 +302,7 @@ plot_particles_lhood <- function(particles, x_to_plot_at, true_particle = NA) {
     theme_particles() +
     labs(y='') +
     scale_color_manual(breaks = c('Hypotheses', 'Marginal', 'Truth'),
-                       values = c('black', 'red', 'blue'),
+                       values = c('black', red, blue),
                        guide = FALSE) ->
     p
 
@@ -329,7 +335,7 @@ plot_particles_id <- function(particles, x_to_plot_at, true_particle = NA) {
     labs(y = 'Probability of /p/') +
     theme_particles() +
     scale_color_manual(breaks = c('Hypotheses', 'Marginal', 'Truth'),
-                       values = c('black', 'red', 'blue'),
+                       values = c('black', red, blue),
                        guide = FALSE) ->
     p
 
@@ -370,19 +376,19 @@ plot_particle_updating <- function(x, particles,
 
   particle_pdfs %>%
     ggplot() +
-    geom_line(aes(x=x_pdf, y=particle_lhood, alpha=weight, group=p_idx, frame=x_idx)) +
+    geom_line(aes(x=x_pdf, y=particle_lhood, alpha=weight, color='Hypotheses',
+                  group=p_idx, frame=x_idx)) +
     geom_line(data=particle_pdfs_marginal,
-              aes(x=x_pdf, y=marginal_lhood, group=x_idx, frame=x_idx),
-              color='red') + 
+              aes(x=x_pdf, y=marginal_lhood, group=x_idx, frame=x_idx,
+                  color='Marginal')) +
     geom_point(data=xs_before_xidx, aes(x=x, y=0, alpha=1, frame=x_idx), shape='|') + 
+    scale_color_manual(breaks = c('Hypotheses', 'Marginal', 'Truth'),
+                       values = c('black', red, blue),
+                       guide = FALSE) +
     scale_alpha_continuous(range=c(0.00,1)) +
     guides(alpha = FALSE) +
-    theme(panel.grid = element_blank(),
-          panel.border = element_blank(),
-          axis.title.y = element_blank(),
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank(),
-          axis.line.y = element_blank()) ->
+    theme_particles() +
+    theme(axis.title.y = element_blank()) ->
     p
 
   # if there's a true particle, add its likelihood to the plot
@@ -391,7 +397,7 @@ plot_particle_updating <- function(x, particles,
                              lhood = sapply(x_pdf, d_particle, p=true_particle))
     lhood_range <- range(true_lhood$lhood)
     p <- p + 
-      geom_line(data = true_lhood, aes(x=x_pdf, y=lhood), color='blue') +
+      geom_line(data = true_lhood, aes(x=x_pdf, y=lhood, color='Truth')) +
       coord_cartesian(ylim = lhood_range + diff(lhood_range)*c(-0.02, 0.2))
   }
 
@@ -434,7 +440,7 @@ plot_particle_updating_id <- function(x, particles,
     theme_particles() +
     guides(alpha = FALSE) +
     scale_color_manual(breaks = c('Hypotheses', 'Marginal', 'Truth'),
-                       values = c('black', 'red', 'blue'),
+                       values = c('black', red, blue),
                        guide = FALSE) ->
     p
 
@@ -522,6 +528,8 @@ okay_particles %>%
 
 An __ideal adpater__ rapidly adapts to an unfamiliar talker via __distributional learning__
 
+Simultaneously infer __what__ the talker is saying and __how__ they say things
+
 ```{r okay_updating, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
 
 ## belief updating animation
@@ -542,11 +550,6 @@ gg_animate(okay_updating)
 ```
 ```{r okay_updating_id, fig.width=4, fig.height=3, out.width="49%", fig.show='animate'}
 
-
-## belief updating animation
-x <- sample_from_particle(30, true_particle)
-t_to_plot_at <- 1:30
-
 okay_updating_id <- okay_particles %>%
   plot_particle_updating_id(x = x,
                             x_idx_to_plot_at = t_to_plot_at,
@@ -560,13 +563,18 @@ gg_animate(okay_updating_id)
 
 <span class="cite">[Kleinschmidt & Jaeger, 2015]</span>
 
+---
+
+Distributional learning needs to __start__ somewhere
+
+(__prior beliefs__ in Bayesian jargon)
+
+<div class="notes">
+* Highlights a commonly overlooked aspect: where does belief updating __start__?
+</div>
 
 ## Scylla and Charybdis
 
-Distributional learning needs to __start__ somewhere  
-(__prior beliefs__ in Bayesian jargon)
-
-<span class="fragment">
 ```{r flat_particles, fig.width=4, fig.height=3, out.width="49%"}
 flat_particles <- r_particle_prior(particle_population,
                                    mu0 = c(0, 60),
@@ -582,8 +590,6 @@ flat_particles %>%
   ggtitle('Too much uncertainty')
 
 ```
-</span>
-<span class="fragment">
 ```{r mis_particles, fig.width=4, fig.height=3, out.width="49%"}
 mis_particles <- r_particle_prior(particle_population,
                                   mu0 = c(15, 70),
@@ -599,10 +605,8 @@ mis_particles %>%
   ggtitle('Overconfident and wrong')
 
 ```
-</span>
 
 <div class="notes">
-* Highlights a commonly overlooked aspect: where does belief updating __start__?
 * There's a tradeoff between being __flexible__ enough to handle variation, but not so __flexible__ that you basically end up re-learning the language
 </div>
 
@@ -678,9 +682,11 @@ gg_animate(mis_updating_id)
 
 ---
 
-The ideal adapter predicts that listeners should be __as specific as possible__ in their expectations about an unfamiliar talker:
+## Ideal adapter predictions
 
-Expectations should match actual variability across talkers in the real world.
+> * Listeners' expectations about an unfamiliar talkers should be __as specific as possible__
+> * Adaptation is constrained by __actual variability__ across talkers in the real world.
+> * Accents that fall outside the range of normal variability should result in less adaptation.
 
 <div class="notes">
 * At the highest level: part of what makes an ideal adapter "ideal" is that sometimes it __won't__ rapidly adapt.
@@ -692,8 +698,8 @@ Expectations should match actual variability across talkers in the real world.
 ## Questions
 
 > 1. Is rapid adaptation to an unfamiliar talker __constrained__?
-> 2. Are constraints consistent with listeners starting from a __single set of prior beliefs__?
-> 3. Do these inferred prior beliefs reflect __talker variation__?
+> 2. Are constraints consistent with belief updating, starting from shared __prior beliefs__?
+> 3. Are these inferred prior beliefs 'rational' in that they reflect __cross-talker variation__?
 
 # Experiment
 
@@ -924,6 +930,8 @@ boundary_summary <- boundaries %>%
 
 ## Prediction: no learning
 
+<p><img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" /></p>
+
 ```{r predict-no-learning, fig.width=8, fig.height=2, out.width="100%"}
 
 learn_plot <-
@@ -950,6 +958,8 @@ If listeners aren't learning anything at all, then their classification function
 
 ## Prediction: full learning
 
+<img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" />
+
 ```{r predict-full-learning, fig.width=8, fig.height=2, out.width="100%"}
 
 (
@@ -972,6 +982,8 @@ So what do people actually do??
 </div>
 
 ## Results: classification
+
+<img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" />
 
 ```{r class-fcns, fig.width=8, fig.height=2, out.width="100%"}
 
@@ -1055,13 +1067,12 @@ Things to notice:
 
 1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
     * __Yes__: Less adaptation to extreme accents
-2. Are constraints consistent with listeners starting from a __single set of prior beliefs__?
-3. Do these inferred prior beliefs reflect __talker variation__?
+2. Are constraints consistent with belief updating, starting from shared __prior beliefs__?
+3. Are these inferred prior beliefs 'rational' in that they reflect __cross-talker variation__?
 
 # Modeling
 
-<!-- ## Belief updating -->
----
+## Belief updating
 
 Previously: given __exposure distributions__ and __prior beliefs__, predict __adaptation__ (change in classification)
 
@@ -1090,10 +1101,12 @@ mod_samples <- readRDS('../nips_2015/data/samples_lapsing.rds')
 
 1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
     * __Yes__: Less adaptation to extreme accents
-2. <span class="fragment highlight-red">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
-3. Do these inferred prior beliefs reflect __talker variation__?
+2. <span class="fragment highlight-red">Are constraints consistent with belief updating, starting from shared __prior beliefs__?</span>
+3. Are these inferred prior beliefs 'rational' in that they reflect __cross-talker variation__?
 
 ## Model vs. data: classification
+
+<img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" />
 
 ```{r model-vs-class-data, fig.width=8, fig.height=2, out.width='100%'}
 
@@ -1140,7 +1153,7 @@ ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
   facet_grid(.~bvotCond) +
   scale_x_continuous('VOT (ms)') +
   scale_y_continuous('Probability /p/ response') + 
-  scale_color_discrete('/b/ mean\nVOT')
+  scale_color_discrete('/b/ mean\nVOT', guide = FALSE)
 
 
 
@@ -1156,9 +1169,9 @@ ggplot(mod_class_funs, aes(x=vot, y=prob_p, color=bvotCond)) +
 
 1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
     * __Yes__: Less adaptation to extreme accents
-2. <span class="yes">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
+2. <span class="yes">Are constraints consistent with belief updating, starting from shared __prior beliefs__?</span>
     * __Yes__: Belief updating model fits classification well
-3. <span class="fragment highlight-red">Do these inferred prior beliefs reflect __talker variation__?</span>
+3. <span class="fragment highlight-red">Are these inferred prior beliefs 'rational' in that they reflect __cross-talker variation__?</span>
 
 ----
 
@@ -1232,9 +1245,9 @@ prior_p +
 
 1. <span class="yes">Is rapid adaptation to an unfamiliar talker __constrained__?</span>
     * __Yes__: Less adaptation to extreme accents
-2. <span class="yes">Are constraints consistent with listeners starting from a __single set of prior beliefs__?</span>
+2. <span class="yes">Are constraints consistent with belief updating, starting from shared __prior beliefs__?</span>
     * __Yes__: Belief updating model fits classification well
-3. <span class="yes">Do these inferred prior beliefs reflect __talker variation__?</span>
+3. <span class="yes">Are these inferred prior beliefs 'rational' in that they reflect __cross-talker variation__?</span>
     * __Yes__(-ish): Prevoicing potentially explains low expected /b/ VOT
 
 # Conclusion
@@ -1243,14 +1256,21 @@ prior_p +
 
 ## Distributional learning is __constrained__
 
-* Rapid adaptation can't be the whole story to coping with talker variation
-* Where do constraints come from?
+---
+
+* Things that can't be the __whole story__ to coping with talker variation:
+    * Rapid adaptation
+    * Fine-grained episodic memory
+    * Normalization
 
 ## The ideal adapter
 
-* Results are consistent with predictions of __ideal adapter__ framework
-* Efficient belief updating requires informative prior starting point
-* Experience with other talkers can provide this prior
+* Provides a theory for __why__ and __how__ the statistics of prior experience guide (and constrain) adaptation
+* ...and supports extraction of __social information__ from the speech signal
+
+<!-- * Results are consistent with predictions of __ideal adapter__ framework -->
+<!-- * Efficient belief updating requires informative prior starting point -->
+<!-- * Experience with other talkers can provide this prior -->
 
 ## There are other possible sources of constraints!
 
@@ -1258,21 +1278,29 @@ prior_p +
 * Own production processes
 * etc.
 
-## Future directions
+## Other contrasts and groups
 
-* Ideal adapter predictions depend on __type__ and __amount__ of cross-talker variability.
-* (relatively) __weaker constraints__ for more variable contrasts (e.g., fricatives and vowels)
-* (relatively) __stronger constraints__ when listeners have more specific expectations (e.g., gender and dialect)
+> * Ideal adapter predictions depend on __type__ and __amount__ of cross-talker variability.
+>     * (relatively) __weaker constraints__ for more variable contrasts (e.g., fricatives and vowels)
+>     * (relatively) __stronger constraints__ for more specific groups (e.g., gender and dialect)
 
 ## Mind reading
 
 * Probing listeners' subjective expectations is __hard__.
 * Adaptation + belief updating models provide a missing __tool__.
-* Bonus: doesn't require __production__ data.
+* Doesn't require __production__ data.
 
 ## Thanks!
 
-# Belief updating
+# Extra slides
+
+## Does anyone actually prevoice
+
+![](imgs/lead-lag-voiced.jpg)
+
+<span class="cite">[Dmitrieva et al., 2015, doi:10.1016/j.wocn.2014.12.005]</span>
+
+## Belief updating ##
 
 ---
 
