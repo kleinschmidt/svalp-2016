@@ -3,8 +3,9 @@ author: "Dave F. Kleinschmidt and T. Florian Jaeger"
 affiliation: "University of Rochester"
 title: "What do you expect from an unfamiliar talker?"
 link:
-  - "[&#64;kleinschmidt](http://twitter.com/kleinschmidt/)"
-  - "[davekleinschmidt.com](http://davekleinschmidt.com/)"
+  - "[&#64;kleinschmidt](https://twitter.com/kleinschmidt/)"
+  - "[davekleinschmidt.com](https://davekleinschmidt.com/)"
+  - "[github.com/kleinschmidt](https://github.com/kleinschmidt)"
 output: 
   revealjs::revealjs_presentation:
     template: slides_template.html
@@ -167,9 +168,9 @@ stats_to_lhood <- function(stats, noise_sd=sd_noise, xlim=c(-30, 90)) {
 ---
 
 <div class="sidebyside">
-<img src="imgs/newman_dists.png" width=40%/>
+<img src="imgs/newman_one_dist.png" width=40%/>
 
-```{r newman-classification-curves, fig.width=4, fig.height=2.6, out.width="40%"}
+```{r newman-classification-curves-one, fig.width=4, fig.height=2.6, out.width="40%"}
 
 x_range <- c(4600, 6200)
 
@@ -181,6 +182,36 @@ newmans <- data_frame(Talker = c('GGG', 'IAF'),
 curves <- newmans %>% group_by(Talker) %>%
   do(data_frame(x = seq(x_range[1], x_range[2]),
                 p = 1 / (1 + exp((x-.$boundary)*.$slope*32))))
+
+curves %>%
+  filter(Talker == 'GGG') %>%
+  ggplot(aes(x=x, y=p, color=Talker)) +
+  geom_line(size=2) +
+  labs(y = 'Probability of /s/',
+       x = "Primary /s/-/sh/ cue\n(Frication frequency centroid, Hz)") + 
+  geom_text(data = newmans %>% filter(Talker == 'GGG'),
+            aes(x=boundary, y=0.5, label = Talker),
+            hjust = 1, vjust = 0, nudge_x = -50) +
+  theme(legend.position='none') +
+  scale_color_discrete(drop=FALSE)
+
+
+```
+</div>
+
+<span class="cite">[Newman, Clouse, & Burnham, 2001]</span>
+
+<div class="notes">
+* commonly recognized! variation __within__ a talker.
+* caetgories are __distributions__ of acoustic cues (or signals)
+</div>
+
+---
+
+<div class="sidebyside">
+<img src="imgs/newman_dists.png" width=40%/>
+
+```{r newman-classification-curves, fig.width=4, fig.height=2.6, out.width="40%"}
 
 ggplot(curves, aes(x=x, y=p, color=Talker)) +
   geom_line(size=2) +
@@ -497,8 +528,9 @@ true_particle <- list(mu = c(0, 60),
 
 ```
 
-## An unfamiliar talker
+## An unfamiliar talker appears!
 
+<span class="fragment">
 ```{r okay_samples, fig.width=4, fig.height=3, out.width="49%", dependson='particle-setup'}
 
 ## Samples from an intermediate prior + classification fun samples
@@ -517,6 +549,7 @@ okay_particles %>%
   ggtitle('Uncertainty about distributions')
 
 ```
+</span>
 <span class="fragment">
 ```{r okay_samples_id, fig.width=4, fig.height=3, out.width="49%", dependson='particle-setup'}
 
@@ -540,7 +573,8 @@ okay_particles %>%
 ---
 
 <div class="notes">
-* Ideal adapter framework formulates this as statistical inference 
+* Ideal adapter: computational analysis of the __problem__ of speech perception
+* Takes talker variability seriously! It's a basic fact of speech.
 </div>
 
 Listeners have to simultaneously infer __what__ the talker is saying and __how__ they say things
@@ -707,8 +741,8 @@ gg_animate(mis_updating_id)
 
 ## Ideal adapter predicts:
 
-> * Listeners' expectations about an unfamiliar talkers should be __as specific as possible__
-> * Adaptation is constrained by __actual variability__ across talkers in the real world.
+> * Listeners' expectations about an unfamiliar talkers should be __as specific as possible__ while still being __right on average__.
+> * Adaptation is constrained by __actual variability__ across talkers (as experienced by each listener).
 > * Accents that fall outside the range of normal variability should result in less adaptation.
 
 <div class="notes">
@@ -953,8 +987,6 @@ boundary_summary <- boundaries %>%
 
 ## Prediction: no learning
 
-<p><img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" /></p>
-
 ```{r predict-no-learning, fig.width=8, fig.height=2, out.width="100%"}
 
 learn_plot <-
@@ -975,13 +1007,14 @@ print(learn_plot)
 
 ```
 
+<p><img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" /></p>
+
+
 <div class="notes">
 If listeners aren't learning anything at all, then their classification functions should be the __same__ regardless of condition. The best bet is that they'll look something like one optimized for a typical talker
 </div>
 
 ## Prediction: full learning
-
-<img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" />
 
 ```{r predict-full-learning, fig.width=8, fig.height=2, out.width="100%"}
 
@@ -998,6 +1031,9 @@ If listeners aren't learning anything at all, then their classification function
 
 ```
 
+<img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" />
+
+
 <div class="notes">
 On the other hand, if listeners are unconstrained in their adaptation, we predict they'll pick up on exactly the right category boundary for each of the accents we throw at them, which looks something like this
 
@@ -1005,8 +1041,6 @@ So what do people actually do??
 </div>
 
 ## Results: classification
-
-<img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" />
 
 ```{r class-fcns, fig.width=8, fig.height=2, out.width="100%"}
 
@@ -1024,6 +1058,8 @@ So what do people actually do??
 
 
 ```
+
+<img src="slides_files/figure-revealjs/distributions-1.png" title="" alt="" width="100%" />
 
 <div class="notes">
 
@@ -1249,7 +1285,7 @@ all_priors <- prior_lhood %>%
                                     "Goldrick et al. (2013)")))
 
 prior_p <- all_priors %>%
-  filter(as.numeric(source) < 3) %>%
+  filter(source == 'Kronrod et al. (2012)') %>%
   ggplot(aes(x=vot, y=lhood, group=paste(category, source), color=source,
              linetype = category)) +
   ## geom_line(aes(linetype='Inferred prior')) +
@@ -1262,7 +1298,8 @@ prior_p <- all_priors %>%
   scale_color_manual(values = hcl(h = c(0, 0, 240) + h_offset,
                                   c = c(0, 100, 100),
                                   l = 65),
-                     drop = FALSE)
+                     drop = FALSE) +
+  lims(x = c(-100, 90))
 
 print(prior_p)
 
@@ -1271,13 +1308,24 @@ print(prior_p)
 
 ## Inferred prior beliefs
 
-```{r inferred-prior-vs-goldrick, fig.width=10, fig.height=3.5, out.width='100%'}
+```{r inferred-prior-vs-goldrick-2, fig.width=10, fig.height=3.5, out.width='100%'}
+
+(
+  prior_p <- prior_p +
+    geom_line(size = 2, alpha=0.5,
+              data = all_priors %>% filter(source == 'Inferred prior'))
+)
+
+
+```
+
+## Inferred prior beliefs
+
+```{r inferred-prior-vs-goldrick-3, fig.width=10, fig.height=3.5, out.width='100%'}
 
 prior_p +
   geom_line(size = 2, alpha=0.5,
-            data = all_priors %>% filter(as.numeric(source) == 3))
-
-
+            data = all_priors %>% filter(source == 'Goldrick et al. (2013)'))
 
 ```
 
@@ -1303,11 +1351,6 @@ prior_p +
     * Fine-grained episodic memory
     * Normalization
 
-## The ideal adapter
-
-* Provides a theory for __why__ and __how__ the statistics of prior experience guide (and constrain) adaptation
-* ...and supports extraction of __social information__ from the speech signal
-
 <!-- * Results are consistent with predictions of __ideal adapter__ framework -->
 <!-- * Efficient belief updating requires informative prior starting point -->
 <!-- * Experience with other talkers can provide this prior -->
@@ -1317,6 +1360,11 @@ prior_p +
 * Psychoacoustics
 * Own production processes
 * etc.
+
+## The ideal adapter
+
+* Provides a theory for __why__ and __how__ the statistics of prior experience guide (and constrain) adaptation
+* ...and supports extraction of __social information__ from the speech signal
 
 ## Other contrasts and groups
 
@@ -1414,6 +1462,7 @@ updated_p_lhoods %>%
 gg_animate(p)
 
 ```
+
 
 
 

@@ -155,7 +155,13 @@ it _is_ a little post hoc. we expected to find that the cue distributions listen
 
 
 
+# Misc
+
+variation is typically thought of as a __Problem__. but it's a fundamental part of language we need to take seriously in theories of speech perception, and here's __why__.
+
+ideal adapter: framework for thinking about and modeling speech perception. listeners make __inferences__ about what best explains the signal they observe. There are lots of things that all jointly contribute! and there are lots of things you might want to infer: __who__ is talking on top of __what__ they're saying. there are parts of the signal that directly cue __who__ (like f0). but here's where variation comes in: the __phonetic__ cue distributions that a person produces for each category carry information about who that talker is!
 
 
 
 
+At a computational level, you can do much better if you have good knowledge about this __generative model__. The cool thing about thinking this way is that 
