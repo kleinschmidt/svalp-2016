@@ -8,7 +8,7 @@ Talk presented at [SVALP](http://www.cpe.vt.edu/svalp/), 1 April 2016, Blacksbur
 
 ## Building slides
 
-You should in principle be able to build the slides from the RMarkdown source file ([slides.Rmd]()). The data is available from the `supunsup` R package, and the model Stan code is in `beliefupdatr`. Install them with:
+You should in principle be able to build the slides from the RMarkdown source file ([slides.Rmd]()). The data is available from the [`supunsup`](https://github.com/kleinschmidt/phonetic-sup-unsup) R package, and the model Stan code is in [`beliefupdatr`](https://github.com/kleinschmidt/beliefupdatr). Install them with:
 
 ```r
 library(devtools)
