@@ -1148,11 +1148,38 @@ Now: given __adaptation__ (change in classification) to different __exposure dis
 
 ---
 
+```{r run-model, eval=FALSE}
 
+## run the belief-updating model for inferring prior. the model source is in
+## the beliefupdatr package, or will be soon :)
+##
+## devtools::install_github('kleinschmidt/beliefupdatr')
+
+data_stan_conj <- data %>%
+  supunsup::supunsup_to_stan_conj()
+  
+library(rstan)
+mod_lapsing <- stan(file.path(devtools::inst('beliefupdatr'),
+                              'exec', 'conj_id_lapsing_fit.stan')
+
+fit_lapsing <- stan(fit = mod_lapsing,
+                    data = data_stan_conj,
+                    chains = 4,
+                    iter = 1000)
+
+head(summary(fit_lapsing)$summary, n=10)
+
+mod_summary <- summary(fit_lapsing)$summary
+mod_samples <- rstan::extract(fit_lapsing)
+
+saveRDS(mod_samples, file='models/samples_lapsing.rds')
+saveRDS(mod_summary, file='models/summary_lapsing.rds')
+
+```
 
 ```{r load-samples}
 
-mod_samples <- readRDS('../nips_2015/data/samples_lapsing.rds')
+mod_samples <- readRDS('models/samples_lapsing.rds')
 
 ```
 
