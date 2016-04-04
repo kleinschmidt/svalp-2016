@@ -1160,7 +1160,7 @@ data_stan_conj <- data %>%
   
 library(rstan)
 mod_lapsing <- stan(file.path(devtools::inst('beliefupdatr'),
-                              'exec', 'conj_id_lapsing_fit.stan')
+                              'exec', 'conj_id_lapsing_fit.stan'))
 
 fit_lapsing <- stan(fit = mod_lapsing,
                     data = data_stan_conj,
